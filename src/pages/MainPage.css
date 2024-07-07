@@ -1,0 +1,32 @@
+.main-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-block: 2rem;
+}
+
+.bottom-section {
+  flex: 3;
+  overflow-y: auto;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+}
+
+.results {
+  padding: 20px;
+}
+
+.result-item {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
