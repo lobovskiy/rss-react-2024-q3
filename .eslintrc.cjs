@@ -17,7 +17,7 @@ module.exports = {
     project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
     tsconfigRootDir: __dirname,
   },
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'react-compiler'],
   settings: {
     react: {
       version: 'detect',
@@ -28,6 +28,7 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
+    'react-compiler/react-compiler': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
   },
