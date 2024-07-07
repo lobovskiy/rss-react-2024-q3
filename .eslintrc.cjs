@@ -28,5 +28,7 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-unnecessary-type-assertion': 'error',
   },
 }
