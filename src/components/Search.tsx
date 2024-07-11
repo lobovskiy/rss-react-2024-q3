@@ -1,43 +1,27 @@
-import { Component, ChangeEvent } from 'react';
+import { ChangeEvent, useState } from 'react';
 
-interface SearchProps {
+interface Props {
   searchTerm: string;
   onSearch: (searchTerm: string) => void;
 }
 
-interface SearchState {
-  input: string;
-}
+const Search: React.FC<Props> = ({ searchTerm, onSearch }) => {
+  const [input, setInput] = useState<string>(searchTerm);
 
-class Search extends Component<SearchProps, SearchState> {
-  constructor(props: SearchProps) {
-    super(props);
-
-    this.state = {
-      input: props.searchTerm,
-    };
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    setInput(event.target.value);
   }
 
-  handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ input: event.target.value });
-  };
-
-  handleSearch = () => {
-    this.props.onSearch(this.state.input.trim());
-  };
-
-  render() {
-    return (
-      <div className="search">
-        <input
-          type="text"
-          value={this.state.input}
-          onChange={this.handleChange}
-        />
-        <button onClick={this.handleSearch}>Search</button>
-      </div>
-    );
+  function handleClickSearch() {
+    onSearch(input.trim());
   }
-}
+
+  return (
+    <div className="search">
+      <input type="text" value={input} onChange={handleChange} />
+      <button onClick={handleClickSearch}>Search</button>
+    </div>
+  );
+};
 
 export default Search;
