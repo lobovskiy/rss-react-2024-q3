@@ -1,8 +1,8 @@
-import { IPerson } from '../types.ts';
+import { Person } from '../types.ts';
 
 interface IApiResult {
   count: number;
-  results: IPerson[];
+  results: Person[];
 }
 
 export const fetchResults = async (searchTerm: string) => {

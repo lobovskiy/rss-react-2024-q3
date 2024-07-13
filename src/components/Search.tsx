@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface Props {
   searchTerm: string;
@@ -6,21 +6,28 @@ interface Props {
 }
 
 const Search: React.FC<Props> = ({ searchTerm, onSearch }) => {
-  const [input, setInput] = useState<string>(searchTerm);
+  const [inputValue, setInputValue] = useState(searchTerm);
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    setInput(event.target.value);
-  }
+  useEffect(() => {
+    setInputValue(searchTerm);
+  }, [searchTerm]);
 
-  function handleClickSearch() {
-    onSearch(input.trim());
-  }
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onSearch(inputValue);
+  };
 
   return (
-    <div className="search">
-      <input type="text" value={input} onChange={handleChange} />
-      <button onClick={handleClickSearch}>Search</button>
-    </div>
+    <form className="search" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(event) => {
+          setInputValue(event.target.value);
+        }}
+      />
+      <button type="submit">Search</button>
+    </form>
   );
 };
 

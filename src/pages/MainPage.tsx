@@ -2,53 +2,57 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { fetchResults } from '../services/apiService';
 import Search from '../components/Search';
-import PersonList from '../components/PersonList.tsx';
-import { IPerson } from '../types.ts';
+import CardList from '../components/CardList';
+import { PersonList } from '../types';
 
 import './MainPage.css';
 
-interface IPersonList {
-  people: IPerson[];
-  progress: boolean;
-}
-
 const MainPage: React.FC = () => {
-  const initialSearchTerm = localStorage.getItem('searchTerm') ?? '';
-  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTerm);
-  const [personList, setPersonList] = useState<IPersonList>({
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [personList, setPersonList] = useState<PersonList>({
     people: [],
     progress: false,
   });
 
-  const loadResults = useCallback(() => {
-    setPersonList((list) => ({ ...list, progress: true }));
-    fetchResults(searchTerm.trim())
-      .then((results) => {
-        setPersonList({
-          people: results,
-          progress: false,
+  const setPersonListProgress = useCallback((progress: boolean) => {
+    setPersonList((list) => ({ ...list, progress }));
+  }, []);
+
+  const loadPeople = useCallback(
+    (searchTerm: string) => {
+      setPersonListProgress(true);
+
+      fetchResults(searchTerm.trim())
+        .then((results) => {
+          setPersonList({
+            people: results,
+            progress: false,
+          });
+        })
+        .catch((error) => {
+          setPersonListProgress(false);
+          console.error('Error fetching results:', error);
         });
-      })
-      .catch((error) => {
-        console.error('Error fetching results:', error);
-        setPersonList((list) => ({ ...list, progress: true }));
-      });
-  }, [searchTerm]);
+    },
+    [setPersonListProgress]
+  );
 
-  useEffect(() => {
-    loadResults();
-  }, [loadResults]);
-
-  function handleSearch(searchTerm: string) {
+  const handleSearch = (searchTerm: string) => {
     localStorage.setItem('searchTerm', searchTerm);
-
     setSearchTerm(searchTerm);
-    loadResults();
-  }
+    loadPeople(searchTerm);
+  };
 
   function setInvalidState() {
     setPersonList({ ...personList, people: {} as [] });
   }
+
+  useEffect(() => {
+    const storedSearchTerm = localStorage.getItem('searchTerm') ?? '';
+
+    setSearchTerm(storedSearchTerm);
+    loadPeople(storedSearchTerm);
+  }, [loadPeople]);
 
   return (
     <div className="main-page">
@@ -63,7 +67,7 @@ const MainPage: React.FC = () => {
         </button>
       </div>
       <div className="bottom-section">
-        <PersonList people={personList.people} progress={personList.progress} />
+        <CardList people={personList.people} progress={personList.progress} />
       </div>
     </div>
   );

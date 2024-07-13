@@ -1,11 +1,11 @@
-import { IPerson } from '../types.ts';
+import { Person } from '../types.ts';
 
 interface Props {
-  people: IPerson[];
+  people: Person[];
   progress: boolean;
 }
 
-const PersonList: React.FC<Props> = ({ people, progress }) => {
+const CardList: React.FC<Props> = ({ people, progress }) => {
   if (progress) {
     return <div>Loading...</div>;
   }
@@ -23,4 +23,4 @@ const PersonList: React.FC<Props> = ({ people, progress }) => {
   );
 };
 
-export default PersonList;
+export default CardList;
