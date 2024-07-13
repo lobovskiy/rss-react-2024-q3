@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 
-import { fetchResults } from '../services/apiService';
-import Search from '../components/Search';
-import CardList from '../components/CardList';
-import { PersonList } from '../types';
+import { fetchResults } from '../../services/apiService';
+import useSearchQuery from '../../hooks/useSearchQuery';
+import Search from '../../components/Search';
+import CardList from '../../components/CardList/CardList';
+import { PersonList } from '../../types';
+import { LS_KEYS } from '../../constants';
 
 import './MainPage.css';
-import { LS_KEYS } from '../constants';
-import useSearchQuery from '../hooks/useSearchQuery';
 
 const MainPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useSearchQuery(LS_KEYS.SearchQuery);
@@ -15,6 +16,8 @@ const MainPage: React.FC = () => {
     people: [],
     progress: false,
   });
+
+  const navigate = useNavigate();
 
   const setPersonListProgress = useCallback((progress: boolean) => {
     setPersonList((list) => ({ ...list, progress }));
@@ -41,6 +44,7 @@ const MainPage: React.FC = () => {
 
   const handleSearch = (searchQuery: string) => {
     setSearchQuery(searchQuery);
+    navigate('/');
   };
 
   function setInvalidState() {
@@ -65,6 +69,7 @@ const MainPage: React.FC = () => {
       </div>
       <div className="bottom-section">
         <CardList people={personList.people} progress={personList.progress} />
+        <Outlet />
       </div>
     </div>
   );

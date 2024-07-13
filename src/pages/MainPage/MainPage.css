@@ -1,5 +1,6 @@
 .main-page {
   display: flex;
+  width: 100%;
   flex-direction: column;
   height: 100vh;
 }
@@ -13,20 +14,20 @@
 }
 
 .bottom-section {
+  width: 100%;
   flex: 3;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2rem;
   overflow-y: auto;
+}
+
+.bottom-section > :nth-last-child(n + 2) {
+  margin-inline: auto 0;
 }
 
 .search {
   display: flex;
   align-items: center;
-}
-
-.results {
-  padding: 20px;
-}
-
-.result-item {
-  border-bottom: 1px solid #ccc;
-  padding: 10px 0;
 }
