@@ -6,9 +6,10 @@ import CardList from '../components/CardList';
 import { PersonList } from '../types';
 
 import './MainPage.css';
+import { LS_KEYS } from '../constants';
 
 const MainPage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [personList, setPersonList] = useState<PersonList>({
     people: [],
     progress: false,
@@ -19,10 +20,10 @@ const MainPage: React.FC = () => {
   }, []);
 
   const loadPeople = useCallback(
-    (searchTerm: string) => {
+    (searchQuery: string) => {
       setPersonListProgress(true);
 
-      fetchResults(searchTerm.trim())
+      fetchResults(searchQuery.trim())
         .then((results) => {
           setPersonList({
             people: results,
@@ -37,10 +38,10 @@ const MainPage: React.FC = () => {
     [setPersonListProgress]
   );
 
-  const handleSearch = (searchTerm: string) => {
-    localStorage.setItem('searchTerm', searchTerm);
-    setSearchTerm(searchTerm);
-    loadPeople(searchTerm);
+  const handleSearch = (searchQuery: string) => {
+    localStorage.setItem(LS_KEYS.SearchQuery, searchQuery);
+    setSearchQuery(searchQuery);
+    loadPeople(searchQuery);
   };
 
   function setInvalidState() {
@@ -48,16 +49,16 @@ const MainPage: React.FC = () => {
   }
 
   useEffect(() => {
-    const storedSearchTerm = localStorage.getItem('searchTerm') ?? '';
+    const storedSearchQuery = localStorage.getItem(LS_KEYS.SearchQuery) ?? '';
 
-    setSearchTerm(storedSearchTerm);
-    loadPeople(storedSearchTerm);
+    setSearchQuery(storedSearchQuery);
+    loadPeople(storedSearchQuery);
   }, [loadPeople]);
 
   return (
     <div className="main-page">
       <div className="top-section">
-        <Search searchTerm={searchTerm} onSearch={handleSearch} />
+        <Search searchQuery={searchQuery} onSearch={handleSearch} />
         <button
           onClick={() => {
             setInvalidState();
