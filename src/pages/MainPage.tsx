@@ -7,9 +7,10 @@ import { PersonList } from '../types';
 
 import './MainPage.css';
 import { LS_KEYS } from '../constants';
+import useSearchQuery from '../hooks/useSearchQuery';
 
 const MainPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useSearchQuery(LS_KEYS.SearchQuery);
   const [personList, setPersonList] = useState<PersonList>({
     people: [],
     progress: false,
@@ -39,9 +40,7 @@ const MainPage: React.FC = () => {
   );
 
   const handleSearch = (searchQuery: string) => {
-    localStorage.setItem(LS_KEYS.SearchQuery, searchQuery);
     setSearchQuery(searchQuery);
-    loadPeople(searchQuery);
   };
 
   function setInvalidState() {
@@ -49,11 +48,8 @@ const MainPage: React.FC = () => {
   }
 
   useEffect(() => {
-    const storedSearchQuery = localStorage.getItem(LS_KEYS.SearchQuery) ?? '';
-
-    setSearchQuery(storedSearchQuery);
-    loadPeople(storedSearchQuery);
-  }, [loadPeople]);
+    loadPeople(searchQuery);
+  }, [searchQuery, loadPeople]);
 
   return (
     <div className="main-page">
