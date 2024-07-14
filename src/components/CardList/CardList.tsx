@@ -26,6 +26,10 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
     }
   };
 
+  if (!people.length) {
+    return <div className="people">There is no people found</div>;
+  }
+
   return (
     <div className="people">
       {people.map((person, index) => {
@@ -47,6 +51,7 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
             onClick={() => {
               showPersonCard(id);
             }}
+            data-testid="card-list-item"
           >
             <h3>Name: {person.name}</h3>
             <p>Gender: {person.gender}</p>
