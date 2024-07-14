@@ -1,0 +1,21 @@
+.people {
+  width: 200px;
+  margin-inline: auto;
+  padding: 2em;
+}
+
+.person {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.person_active,
+.person:hover {
+  background-color: #4caf50;
+  color: white;
+}

@@ -8,6 +8,7 @@ lerna-debug.log*
 dist
 dist-ssr
 *.local
+coverage/
 
 # Editor directories and files
 .DS_Store

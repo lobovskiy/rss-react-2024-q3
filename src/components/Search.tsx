@@ -1,43 +1,37 @@
-import { Component, ChangeEvent } from 'react';
+import { useEffect, useState } from 'react';
 
-interface SearchProps {
-  searchTerm: string;
-  onSearch: (searchTerm: string) => void;
+interface Props {
+  searchQuery: string;
+  onSearch: (searchQuery: string) => void;
 }
 
-interface SearchState {
-  input: string;
-}
+const Search: React.FC<Props> = ({ searchQuery, onSearch }) => {
+  const [inputValue, setInputValue] = useState(searchQuery);
 
-class Search extends Component<SearchProps, SearchState> {
-  constructor(props: SearchProps) {
-    super(props);
+  useEffect(() => {
+    setInputValue(searchQuery);
+  }, [searchQuery]);
 
-    this.state = {
-      input: props.searchTerm,
-    };
-  }
-
-  handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ input: event.target.value });
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onSearch(inputValue);
   };
 
-  handleSearch = () => {
-    this.props.onSearch(this.state.input.trim());
-  };
-
-  render() {
-    return (
-      <div className="search">
-        <input
-          type="text"
-          value={this.state.input}
-          onChange={this.handleChange}
-        />
-        <button onClick={this.handleSearch}>Search</button>
-      </div>
-    );
-  }
-}
+  return (
+    <form className="search" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(event) => {
+          setInputValue(event.target.value);
+        }}
+        data-testid="search-input"
+      />
+      <button type="submit" data-testid="search-button">
+        Search
+      </button>
+    </form>
+  );
+};
 
 export default Search;

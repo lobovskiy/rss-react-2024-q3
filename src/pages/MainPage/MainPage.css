@@ -1,0 +1,47 @@
+.main-page {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.top-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-block: 2rem;
+}
+
+.bottom-section {
+  width: 100%;
+  flex: 3;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2rem;
+  overflow-y: auto;
+}
+
+.bottom-section > :nth-last-child(n + 2) {
+  margin-inline: auto 0;
+}
+
+.bottom-section__list {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.bottom-section__list-content {
+  height: calc(100% - 50px);
+  overflow-y: auto;
+}
+
+.bottom-section__list-pagination {
+  height: 50px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+}
