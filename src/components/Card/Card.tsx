@@ -35,7 +35,7 @@ const Card: React.FC = () => {
     }
   }, [id, loadPerson]);
 
-  if (id === null || person === null) {
+  if (!progress && (id === null || person === null)) {
     return null;
   }
 

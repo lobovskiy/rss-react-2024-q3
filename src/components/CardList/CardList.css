@@ -7,13 +7,15 @@
 .person {
   display: block;
   width: 100%;
+  padding: 0.5rem;
   background: none;
   border: none;
   border-bottom: 1px solid #ccc;
-  padding: 10px 0;
   cursor: pointer;
 }
 
+.person_active,
 .person:hover {
-  background-color: #eee;
+  background-color: #4caf50;
+  color: white;
 }

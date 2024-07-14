@@ -28,23 +28,32 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
 
   return (
     <div className="people">
-      {people.map((person, index) => (
-        <button
-          key={index}
-          className="person"
-          onClick={() => {
-            const urlSegments = person.url
-              .split('/')
-              .filter((segment) => segment !== '');
-            const id = urlSegments.pop();
-            showPersonCard(id);
-          }}
-        >
-          <h3>Name: {person.name}</h3>
-          <p>Gender: {person.gender}</p>
-          <p>Year of birth: {person.birth_year}</p>
-        </button>
-      ))}
+      {people.map((person, index) => {
+        let className = 'person';
+        const urlSegments = person.url
+          .split('/')
+          .filter((segment) => segment !== '');
+        const id = urlSegments.pop();
+        const details = searchParams.get('details') ?? undefined;
+
+        if (id === details) {
+          className += ' person_active';
+        }
+
+        return (
+          <button
+            key={index}
+            className={className}
+            onClick={() => {
+              showPersonCard(id);
+            }}
+          >
+            <h3>Name: {person.name}</h3>
+            <p>Gender: {person.gender}</p>
+            <p>Year of birth: {person.birth_year}</p>
+          </button>
+        );
+      })}
     </div>
   );
 };

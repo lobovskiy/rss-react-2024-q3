@@ -11,5 +11,6 @@ export interface Person {
 
 export interface PersonList {
   people: Person[];
+  count: number;
   progress: boolean;
 }
