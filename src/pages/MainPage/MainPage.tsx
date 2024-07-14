@@ -72,7 +72,7 @@ const MainPage: React.FC = () => {
       searchParams.get('details') &&
       !target.closest('.card') &&
       !target.closest('.person') &&
-      !target.closest('.navigation')
+      !target.closest('.pagination')
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('details');
