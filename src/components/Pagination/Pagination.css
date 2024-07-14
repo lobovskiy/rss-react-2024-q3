@@ -20,3 +20,11 @@
   background-color: #4caf50;
   color: white;
 }
+.pagination button[disabled] {
+  cursor: auto;
+  color: gray;
+}
+.pagination button.active[disabled] {
+  color: #dfdfdf;
+  background-color: #8dca8f;
+}

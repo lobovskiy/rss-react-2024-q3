@@ -117,6 +117,7 @@ const MainPage: React.FC = () => {
             <Pagination
               page={page ?? 1}
               count={personList.count}
+              progress={personList.progress}
               setPage={handleSetPage}
             />
           </div>
