@@ -1,6 +1,7 @@
 .people {
   width: 200px;
   margin-inline: auto;
+  padding: 2em;
 }
 
 .person {

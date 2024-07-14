@@ -1,22 +1,14 @@
-import { Person } from '../types.ts';
+const BASE_URL = 'https://swapi.dev/api/';
 
-interface IApiResult {
-  count: number;
-  results: Person[];
-}
+export const fetchData = async <T>(path?: string): Promise<T> => {
+  const url = `${BASE_URL}${path}`;
+  // ? `https://swapi.dev/api/people/?search=${searchTerm}`
 
-export const fetchResults = async (searchTerm: string) => {
-  const API_URl = searchTerm
-    ? `https://swapi.dev/api/people/?search=${searchTerm}`
-    : 'https://swapi.dev/api/people';
-
-  const response = await fetch(API_URl);
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
 
-  const data = (await response.json()) as IApiResult;
-
-  return data.results;
+  return (await response.json()) as T;
 };

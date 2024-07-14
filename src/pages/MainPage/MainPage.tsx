@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
-import { fetchResults } from '../../services/apiService';
+import { fetchData } from '../../services/apiService';
+import { ApiResponsePeople } from '../../services/types';
 import useSearchQuery from '../../hooks/useSearchQuery';
 import Search from '../../components/Search';
 import CardList from '../../components/CardList/CardList';
@@ -24,19 +25,23 @@ const MainPage: React.FC = () => {
   }, []);
 
   const loadPeople = useCallback(
-    (searchQuery: string) => {
+    (searchQuery?: string) => {
       setPersonListProgress(true);
 
-      fetchResults(searchQuery.trim())
-        .then((results) => {
+      const path = searchQuery
+        ? `people?search=${searchQuery.trim()}`
+        : 'people';
+
+      fetchData<ApiResponsePeople>(path)
+        .then((data) => {
           setPersonList({
-            people: results,
+            people: data.results,
             progress: false,
           });
         })
         .catch((error) => {
           setPersonListProgress(false);
-          console.error('Error fetching results:', error);
+          console.error('Error fetching data:', error);
         });
     },
     [setPersonListProgress]
