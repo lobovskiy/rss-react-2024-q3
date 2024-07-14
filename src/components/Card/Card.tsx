@@ -52,6 +52,10 @@ const Card: React.FC = () => {
       return <div className="card__details">Loading...</div>;
     }
 
+    if (!person) {
+      return null;
+    }
+
     const {
       name,
       gender,

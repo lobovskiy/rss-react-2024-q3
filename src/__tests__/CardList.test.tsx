@@ -18,6 +18,7 @@ describe('CardList component', () => {
     renderComponent(peopleMock);
 
     const cardElements = screen.getAllByTestId('card-list-item');
+
     expect(cardElements).toHaveLength(peopleMock.length);
   });
 
@@ -25,5 +26,14 @@ describe('CardList component', () => {
     renderComponent([]);
 
     expect(screen.getByText('There is no people found')).toBeInTheDocument();
+  });
+
+  it('renders the relevant card data', () => {
+    renderComponent(peopleMock);
+
+    const cardElements = screen.getAllByTestId('card-list-item');
+    const firstCardElement = cardElements[0];
+
+    expect(firstCardElement.textContent).toContain(peopleMock[0].name);
   });
 });
