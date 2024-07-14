@@ -7,13 +7,13 @@ import useSearchQuery from '../../hooks/useSearchQuery';
 import Search from '../../components/Search';
 import CardList from '../../components/CardList/CardList';
 import Pagination from '../../components/Pagination/Pagination';
+import { getPeopleQuery } from './utils';
 import { PersonList } from '../../types';
 import { LS_KEYS } from '../../constants';
 
 import './MainPage.css';
 
 const MainPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useSearchQuery(LS_KEYS.SearchQuery);
   const [personList, setPersonList] = useState<PersonList>({
     people: [],
     count: 0,
@@ -21,52 +21,37 @@ const MainPage: React.FC = () => {
   });
 
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const initialPageString = searchParams.get('page');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useSearchQuery(LS_KEYS.SearchQuery);
 
-  const [page, setPage] = useState<number | undefined>(
-    initialPageString ? parseInt(initialPageString, 10) : undefined
-  );
+  const searchParamPage = searchParams.get('page');
+  const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
 
-  const setPersonListProgress = useCallback((progress: boolean) => {
-    setPersonList((list) => ({ ...list, progress }));
+  const loadPeople = useCallback((query?: string) => {
+    const PEOPLE_URL = `people`;
+    const resource = query ? `${PEOPLE_URL}?${query}` : PEOPLE_URL;
+    const setPersonListProgress = (progress: boolean) => {
+      setPersonList((list) => ({ ...list, progress }));
+    };
+
+    setPersonListProgress(true);
+
+    fetchData<ApiResponsePeople>(resource)
+      .then((data) => {
+        setPersonList({
+          people: data.results,
+          count: data.count,
+          progress: false,
+        });
+      })
+      .catch((error) => {
+        setPersonListProgress(false);
+        console.error('Error fetching data:', error);
+      });
   }, []);
 
-  const loadPeople = useCallback(
-    (page?: string, searchQuery?: string) => {
-      setPersonListProgress(true);
-
-      let path = 'people';
-
-      if (!!page || !!searchQuery) {
-        path += '?';
-
-        if (page) {
-          path += `page=${page}`;
-        }
-
-        if (searchQuery) {
-          path += `search=${searchQuery.trim()}`;
-        }
-      }
-
-      fetchData<ApiResponsePeople>(path)
-        .then((data) => {
-          setPersonList({
-            people: data.results,
-            count: data.count,
-            progress: false,
-          });
-        })
-        .catch((error) => {
-          setPersonListProgress(false);
-          console.error('Error fetching data:', error);
-        });
-    },
-    [setPersonListProgress]
-  );
-
   const handleSearch = (searchQuery: string) => {
+    setSearchParams();
     setSearchQuery(searchQuery);
     navigate('/');
   };
@@ -86,7 +71,8 @@ const MainPage: React.FC = () => {
       target instanceof Element &&
       searchParams.get('details') &&
       !target.closest('.card') &&
-      !target.closest('.person')
+      !target.closest('.person') &&
+      !target.closest('.navigation')
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('details');
@@ -101,22 +87,16 @@ const MainPage: React.FC = () => {
   }
 
   useEffect(() => {
-    const newPageString = searchParams.get('page');
-    const newPage = newPageString ? Number(newPageString) : undefined;
+    const pageQuery = page ? String(page) : undefined;
+    const query = getPeopleQuery(pageQuery, searchQuery);
 
-    if (newPage && page !== newPage) {
-      setPage(newPage);
-    }
-  }, [searchParams, page]);
-
-  useEffect(() => {
-    loadPeople(page ? String(page) : undefined, searchQuery);
+    loadPeople(query);
   }, [page, searchQuery, loadPeople]);
 
   return (
     <div className="main-page">
       <div className="top-section">
-        <Search searchQuery={searchQuery} onSearch={handleSearch} />
+        <Search searchQuery={searchQuery ?? ''} onSearch={handleSearch} />
         <button
           onClick={() => {
             setInvalidState();

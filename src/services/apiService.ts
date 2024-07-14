@@ -1,8 +1,7 @@
 const BASE_URL = 'https://swapi.dev/api/';
 
-export const fetchData = async <T>(path?: string): Promise<T> => {
-  const url = `${BASE_URL}${path}`;
-  // ? `https://swapi.dev/api/people/?search=${searchTerm}`
+export const fetchData = async <T>(resource?: string): Promise<T> => {
+  const url = resource ? `${BASE_URL}${resource}` : BASE_URL;
 
   const response = await fetch(url);
 
