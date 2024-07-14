@@ -35,7 +35,7 @@ const Card: React.FC = () => {
     }
   }, [id, loadPerson]);
 
-  if (!progress && (id === null || person === null)) {
+  if (!progress && id === null) {
     return null;
   }
 
@@ -83,7 +83,11 @@ const Card: React.FC = () => {
     <div className="card">
       <h1>Chosen person</h1>
       {renderPersonDetails()}
-      <button className="close" onClick={handleClickClose}></button>
+      <button
+        className="close"
+        onClick={handleClickClose}
+        data-testid="card-details-close-button"
+      ></button>
     </div>
   );
 };

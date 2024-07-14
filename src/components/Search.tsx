@@ -25,8 +25,11 @@ const Search: React.FC<Props> = ({ searchQuery, onSearch }) => {
         onChange={(event) => {
           setInputValue(event.target.value);
         }}
+        data-testid="search-input"
       />
-      <button type="submit">Search</button>
+      <button type="submit" data-testid="search-button">
+        Search
+      </button>
     </form>
   );
 };

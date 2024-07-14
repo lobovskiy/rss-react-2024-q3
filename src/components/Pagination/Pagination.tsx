@@ -15,7 +15,7 @@ const Pagination: React.FC<Props> = ({ page, count, progress, setPage }) => {
   ).map((i) => i + 1);
 
   return (
-    <div className="pagination">
+    <div className="pagination" data-testid="pagination">
       {pageNumbers.map((pageNumber) => (
         <button
           className={`${pageNumber === page ? 'active' : undefined}`}
