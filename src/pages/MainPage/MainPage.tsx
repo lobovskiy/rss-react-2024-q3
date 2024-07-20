@@ -84,7 +84,7 @@ const MainPage: React.FC = () => {
   };
 
   function setInvalidState() {
-    setPersonList({ ...personList, people: {} as [] });
+    setPersonList({ ...personList, people: null as unknown as [] });
   }
 
   useEffect(() => {
