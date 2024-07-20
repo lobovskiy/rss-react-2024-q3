@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { fetchData } from '../../services/apiService';
 import { ApiResponsePeople } from '../../services/types';
-import useSearchQuery from '../../hooks/useSearchQuery';
+import useSearchTerm from '../../hooks/useSearchTerm';
 import Search from '../../components/Search';
 import CardList from '../../components/CardList/CardList';
 import Pagination from '../../components/Pagination/Pagination';
@@ -22,7 +22,7 @@ const MainPage: React.FC = () => {
 
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useSearchQuery(LS_KEYS.SearchQuery);
+  const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
 
   const searchParamPage = searchParams.get('page');
   const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
@@ -50,9 +50,10 @@ const MainPage: React.FC = () => {
       });
   }, []);
 
-  const handleSearch = (searchQuery: string) => {
+  const handleSearch = (searchTerm: string) => {
+    console.log(searchTerm);
     setSearchParams();
-    setSearchQuery(searchQuery);
+    setSearchTerm(searchTerm);
     navigate('/');
   };
 
@@ -88,15 +89,15 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     const pageQuery = page ? String(page) : undefined;
-    const query = getPeopleQuery(pageQuery, searchQuery);
+    const query = getPeopleQuery(pageQuery, searchTerm);
 
     loadPeople(query);
-  }, [page, searchQuery, loadPeople]);
+  }, [page, searchTerm, loadPeople]);
 
   return (
     <div className="main-page">
       <div className="top-section">
-        <Search searchQuery={searchQuery ?? ''} onSearch={handleSearch} />
+        <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
         <button
           onClick={() => {
             setInvalidState();
