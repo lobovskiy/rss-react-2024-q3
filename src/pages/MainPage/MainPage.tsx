@@ -1,25 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { fetchData } from '../../services/apiService';
-import { ApiResponsePeople } from '../../services/types';
+import { useGetPeopleQuery } from '../../services/apiService';
 import useSearchTerm from '../../hooks/useSearchTerm';
+
 import Search from '../../components/Search';
 import CardList from '../../components/CardList/CardList';
 import Pagination from '../../components/Pagination/Pagination';
-import { getPeopleQuery } from './utils';
-import { PersonList } from '../../types';
 import { LS_KEYS } from '../../constants';
 
 import './MainPage.css';
 
 const MainPage: React.FC = () => {
-  const [personList, setPersonList] = useState<PersonList>({
-    people: [],
-    count: 0,
-    progress: false,
-  });
-
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
@@ -27,31 +18,9 @@ const MainPage: React.FC = () => {
   const searchParamPage = searchParams.get('page');
   const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
 
-  const loadPeople = useCallback((query?: string) => {
-    const PEOPLE_URL = `people`;
-    const resource = query ? `${PEOPLE_URL}?${query}` : PEOPLE_URL;
-    const setPersonListProgress = (progress: boolean) => {
-      setPersonList((list) => ({ ...list, progress }));
-    };
-
-    setPersonListProgress(true);
-
-    fetchData<ApiResponsePeople>(resource)
-      .then((data) => {
-        setPersonList({
-          people: data.results,
-          count: data.count,
-          progress: false,
-        });
-      })
-      .catch((error) => {
-        setPersonListProgress(false);
-        console.error('Error fetching data:', error);
-      });
-  }, []);
+  const { data, isLoading } = useGetPeopleQuery({ page, search: searchTerm });
 
   const handleSearch = (searchTerm: string) => {
-    console.log(searchTerm);
     setSearchParams();
     setSearchTerm(searchTerm);
     navigate('/');
@@ -84,15 +53,13 @@ const MainPage: React.FC = () => {
   };
 
   function setInvalidState() {
-    setPersonList({ ...personList, people: null as unknown as [] });
+    // setPersonList({ ...personList, people: null as unknown as [] });
   }
 
-  useEffect(() => {
-    const pageQuery = page ? String(page) : undefined;
-    const query = getPeopleQuery(pageQuery, searchTerm);
-
-    loadPeople(query);
-  }, [page, searchTerm, loadPeople]);
+  // useEffect(() => {
+  //
+  //   useGetPeopleQuery({ page, search: searchTerm });
+  // }, [page, searchTerm, loadPeople]);
 
   return (
     <div className="main-page">
@@ -109,16 +76,13 @@ const MainPage: React.FC = () => {
       <div className="bottom-section" onClick={handleClickSection}>
         <div className="bottom-section__list">
           <div className="bottom-section__list-content">
-            <CardList
-              people={personList.people}
-              progress={personList.progress}
-            />
+            <CardList people={data?.results ?? []} progress={isLoading} />
           </div>
           <div className="bottom-section__list-pagination">
             <Pagination
               page={page ?? 1}
-              count={personList.count}
-              progress={personList.progress}
+              count={data?.count ?? 1}
+              progress={isLoading}
               setPage={handleSetPage}
             />
           </div>
