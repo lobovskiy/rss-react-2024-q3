@@ -1,35 +1,49 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, BrowserRouter } from 'react-router-dom';
+import { render, screen } from '@testing-library/react';
+import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import App from '../App';
+import MainPage from '../pages/MainPage/MainPage';
+import Card from '../components/Card/Card';
+
+import { store } from '../redux/store';
 import * as apiService from '../services/apiService';
+
 import { peopleMock } from '../__mocks__/people';
 
-describe('App', () => {
+describe('Main page', () => {
   const user = userEvent.setup();
 
   const renderComponent = (path: string) => {
     render(
-      <MemoryRouter initialEntries={[path]}>
-        <App />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/" element={<MainPage />}>
+              <Route path="person" element={<Card />} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </Provider>
     );
   };
 
-  const fetchDataMock = jest.spyOn(apiService, 'fetchData').mockResolvedValue({
-    count: 82,
-    results: peopleMock,
-  });
-
-  const loadPeople = async () => {
-    await waitFor(() => expect(fetchDataMock).toHaveBeenCalled());
-  };
+  const useGetPeopleQueryMock = jest.spyOn(
+    apiService,
+    'useGetPeopleQuery'
+  ) as jest.Mock;
+  const useGetPersonByIdQueryMock = jest.spyOn(
+    apiService,
+    'useGetPersonByIdQuery'
+  ) as jest.Mock;
 
   it('opens a detailed card component after click on people list item and calls API', async () => {
-    renderComponent('/');
+    useGetPeopleQueryMock.mockReturnValue({
+      data: { count: 82, results: peopleMock },
+      isLoading: false,
+    });
 
-    await loadPeople();
+    renderComponent('/');
 
     const cardElements = screen.getAllByTestId('card-list-item');
     const firstCardElement = cardElements[0];
@@ -37,13 +51,11 @@ describe('App', () => {
     await user.click(firstCardElement);
 
     expect(screen.getByText('Chosen person')).toBeInTheDocument();
-    expect(fetchDataMock).toHaveBeenLastCalledWith('people/1');
+    expect(useGetPersonByIdQueryMock).toHaveBeenLastCalledWith(1);
   });
 
   it('closes a detailed card component after click on close icon', async () => {
     renderComponent('/person?details=1');
-
-    await loadPeople();
 
     const cardDetailsCloseButton = screen.getByTestId(
       'card-details-close-button'
@@ -68,18 +80,14 @@ describe('App', () => {
 
     render(
       <BrowserRouter>
-        <App />
+        <MainPage />
       </BrowserRouter>
     );
-
-    await loadPeople();
 
     const pagination = screen.getByTestId('pagination');
     const pageButtons = pagination.getElementsByTagName('button');
 
-    await act(async () => {
-      await user.click(pageButtons[2 - 1]);
-    });
+    await user.click(pageButtons[2 - 1]);
 
     const page = getPageParam();
 
