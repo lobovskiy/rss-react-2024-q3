@@ -4,6 +4,12 @@
   padding: 2em;
 }
 
+.person {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .person button {
   display: block;
   width: 100%;

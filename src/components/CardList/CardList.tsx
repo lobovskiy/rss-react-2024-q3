@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { saveAs } from 'file-saver';
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
@@ -53,9 +54,35 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
     dispatch(clearSelectedPeople());
   }
 
-  const handleClickDownload = () => {
-    // TODO
-  };
+  async function handleClickDownload() {
+    if (!selectedPeople) {
+      return;
+    }
+
+    const selectedPeopleData: Person[] = [];
+
+    await Promise.allSettled(
+      selectedPeople.map(async (id) => {
+        await fetch(`https://swapi.dev/api/people/${id}`)
+          .then((response) => response.json() as Promise<Person>)
+          .then((person) => {
+            selectedPeopleData.push(person);
+          });
+      })
+    );
+
+    const csvData = [
+      'name,gender,birth year,url,eye color,hair color,height,skin color',
+      ...selectedPeopleData.map(
+        (person) =>
+          `${person.name},${person.gender},${person.birth_year},${person.url},${person.eye_color},${person.hair_color},${person.height},${person.skin_color}`
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+
+    saveAs(blob, `${selectedPeopleData.length}_people.csv`);
+  }
 
   return (
     <div className="people">
@@ -97,7 +124,15 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
         <div className="flyout">
           <div>{selectedPeople.length} items selected</div>
           <button onClick={handleClickUnselectAll}>Unselect All</button>
-          <button onClick={handleClickDownload}>Download</button>
+          <button
+            onClick={() => {
+              void (async () => {
+                await handleClickDownload();
+              })();
+            }}
+          >
+            Download
+          </button>
         </div>
       )}
     </div>
