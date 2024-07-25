@@ -79,9 +79,11 @@ describe('Main page', () => {
     };
 
     render(
-      <BrowserRouter>
-        <MainPage />
-      </BrowserRouter>
+      <Provider store={store}>
+        <BrowserRouter>
+          <MainPage />
+        </BrowserRouter>
+      </Provider>
     );
 
     const pagination = screen.getByTestId('pagination');
