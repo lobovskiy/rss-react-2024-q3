@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useGetPeopleQuery } from '../../services/apiService';
@@ -14,6 +15,7 @@ const MainPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
+  const [testError, setTestError] = useState<boolean>(false);
 
   const searchParamPage = searchParams.get('page');
   const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
@@ -53,8 +55,8 @@ const MainPage: React.FC = () => {
     }
   };
 
-  function setInvalidState() {
-    // setPersonList({ ...personList, people: null as unknown as [] });
+  if (testError) {
+    throw new Error('Test error');
   }
 
   return (
@@ -63,7 +65,7 @@ const MainPage: React.FC = () => {
         <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
         <button
           onClick={() => {
-            setInvalidState();
+            setTestError(true);
           }}
         >
           Throw Error
