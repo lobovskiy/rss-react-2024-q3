@@ -10,6 +10,7 @@ import Pagination from '../../components/Pagination/Pagination';
 import { LS_KEYS } from '../../constants';
 
 import './MainPage.css';
+import ThemeSelector from '../../components/ThemeSelector/ThemeSelector';
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
@@ -70,6 +71,7 @@ const MainPage: React.FC = () => {
         >
           Throw Error
         </button>
+        <ThemeSelector />
       </div>
       <div className="bottom-section" onClick={handleClickSection}>
         <div className="bottom-section__list">

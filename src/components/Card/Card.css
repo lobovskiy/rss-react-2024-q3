@@ -2,6 +2,10 @@
   position: relative;
 }
 
+.dark-theme .card {
+  color: white;
+}
+
 .card__details {
   margin-top: 1rem;
 }
@@ -22,6 +26,9 @@
   opacity: 0.3;
   cursor: pointer;
 }
+.dark-theme .close {
+  background: none;
+}
 .close:hover {
   opacity: 1;
 }
@@ -34,6 +41,10 @@
   height: 33px;
   width: 2px;
   background-color: #333;
+}
+.dark-theme .close:before,
+.dark-theme .close:after {
+  background-color: #8dca8f;
 }
 .close:before {
   transform: rotate(45deg);

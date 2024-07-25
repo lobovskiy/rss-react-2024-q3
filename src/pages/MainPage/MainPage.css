@@ -13,6 +13,10 @@
   padding-block: 2rem;
 }
 
+.dark-theme .top-section {
+  color: white;
+}
+
 .bottom-section {
   width: 100%;
   flex: 3;

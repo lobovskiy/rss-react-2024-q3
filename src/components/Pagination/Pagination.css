@@ -15,6 +15,9 @@
   text-decoration: none;
   cursor: pointer;
 }
+.dark-theme .pagination button {
+  background: none;
+}
 .pagination button:hover,
 .pagination button.active {
   background-color: #4caf50;

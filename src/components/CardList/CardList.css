@@ -19,8 +19,12 @@
   border-bottom: 1px solid #ccc;
   cursor: pointer;
 }
+.dark-theme .person button {
+  background: none;
+}
 
 .person_active button,
+.dark-theme .person_active button,
 .person button:hover {
   background-color: #4caf50;
   color: white;
