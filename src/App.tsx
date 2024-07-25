@@ -13,7 +13,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className={`${theme}-theme`} data-testid="app-component">
+      <div className={`wrapper ${theme}-theme`}>
         <Routes>
           <Route path="/" element={<MainPage />}>
             <Route path="person" element={<Card />} />
