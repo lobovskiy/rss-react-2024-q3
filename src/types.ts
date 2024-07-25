@@ -8,9 +8,3 @@ export interface Person {
   height: string;
   skin_color: string;
 }
-
-export interface PersonList {
-  people: Person[];
-  count: number;
-  progress: boolean;
-}

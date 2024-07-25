@@ -42,7 +42,8 @@ const MainPage: React.FC = () => {
       searchParams.get('details') &&
       !target.closest('.card') &&
       !target.closest('.person') &&
-      !target.closest('.pagination')
+      !target.closest('.pagination') &&
+      !target.closest('.flyout')
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('details');
@@ -55,11 +56,6 @@ const MainPage: React.FC = () => {
   function setInvalidState() {
     // setPersonList({ ...personList, people: null as unknown as [] });
   }
-
-  // useEffect(() => {
-  //
-  //   useGetPeopleQuery({ page, search: searchTerm });
-  // }, [page, searchTerm, loadPeople]);
 
   return (
     <div className="main-page">
