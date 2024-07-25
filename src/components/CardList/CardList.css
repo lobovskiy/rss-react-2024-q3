@@ -40,4 +40,9 @@
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  background-color: darkseagreen;
+}
+.dark-theme .flyout {
+  color: white;
+  background-color: darkorchid;
 }
