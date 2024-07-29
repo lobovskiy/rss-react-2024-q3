@@ -5,11 +5,16 @@
   height: calc(100vh - 4rem);
 }
 
+.main-page {
+  height: 100%;
+}
+
 .top-section {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  height: 4rem;
   padding-block: 2rem;
 }
 
@@ -19,6 +24,7 @@
 
 .bottom-section {
   width: 100%;
+  height: calc(100% - 4rem);
   flex: 3;
   display: grid;
   grid-auto-flow: column;
