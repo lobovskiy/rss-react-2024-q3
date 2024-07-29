@@ -1,6 +1,15 @@
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { saveAs } from 'file-saver';
+
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import {
+  addSelectedPerson,
+  clearSelectedPeople,
+  removeSelectedPerson,
+} from '../../redux/selectedPeople/slice';
+
 import { Person } from '../../types.ts';
 
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import './CardList.css';
 
 interface Props {
@@ -11,6 +20,9 @@ interface Props {
 const CardList: React.FC<Props> = ({ people, progress }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const dispatch = useAppDispatch();
+  const selectedPeople = useAppSelector((state) => state.selectedPeople.ids);
 
   if (progress) {
     return <div>Loading...</div>;
@@ -30,6 +42,48 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
     return <div className="people">There is no people found</div>;
   }
 
+  function setSelectedPerson(id: string | undefined, checked: boolean) {
+    if (id) {
+      checked
+        ? dispatch(addSelectedPerson(id))
+        : dispatch(removeSelectedPerson(id));
+    }
+  }
+
+  function handleClickUnselectAll() {
+    dispatch(clearSelectedPeople());
+  }
+
+  async function handleClickDownload() {
+    if (!selectedPeople) {
+      return;
+    }
+
+    const selectedPeopleData: Person[] = [];
+
+    await Promise.allSettled(
+      selectedPeople.map(async (id) => {
+        await fetch(`https://swapi.dev/api/people/${id}`)
+          .then((response) => response.json() as Promise<Person>)
+          .then((person) => {
+            selectedPeopleData.push(person);
+          });
+      })
+    );
+
+    const csvData = [
+      'name,gender,birth year,url,eye color,hair color,height,skin color',
+      ...selectedPeopleData.map(
+        (person) =>
+          `${person.name},${person.gender},${person.birth_year},${person.url},${person.eye_color},${person.hair_color},${person.height},${person.skin_color}`
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+
+    saveAs(blob, `${selectedPeopleData.length}_people.csv`);
+  }
+
   return (
     <div className="people">
       {people.map((person, index) => {
@@ -45,22 +99,43 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
         }
 
         return (
-          <button
-            key={index}
-            className={className}
-            onClick={() => {
-              showPersonCard(id);
-            }}
-            data-testid="card-list-item"
-          >
-            <h3>Name: {person.name}</h3>
-            <p>Gender: {person.gender}</p>
-            <p>Year of birth: {person.birth_year}</p>
-          </button>
+          <div key={`${index}${id}`} className={className}>
+            <input
+              type="checkbox"
+              checked={!!id && selectedPeople.includes(id)}
+              onChange={(event) => {
+                setSelectedPerson(id, event.target.checked);
+              }}
+            />
+            <button
+              onClick={() => {
+                showPersonCard(id);
+              }}
+              data-testid="card-list-item"
+            >
+              <h3>Name: {person.name}</h3>
+              <p>Gender: {person.gender}</p>
+              <p>Year of birth: {person.birth_year}</p>
+            </button>
+          </div>
         );
       })}
+      {selectedPeople.length > 0 && (
+        <div className="flyout">
+          <div>{selectedPeople.length} items selected</div>
+          <button onClick={handleClickUnselectAll}>Unselect All</button>
+          <button
+            onClick={() => {
+              void (async () => {
+                await handleClickDownload();
+              })();
+            }}
+          >
+            Download
+          </button>
+        </div>
+      )}
     </div>
   );
 };
-
 export default CardList;

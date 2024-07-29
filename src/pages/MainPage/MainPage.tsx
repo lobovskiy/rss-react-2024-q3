@@ -1,58 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 
-import { fetchData } from '../../services/apiService';
-import { ApiResponsePeople } from '../../services/types';
-import useSearchQuery from '../../hooks/useSearchQuery';
+import { useGetPeopleQuery } from '../../services/apiService';
+import useSearchTerm from '../../hooks/useSearchTerm';
+
 import Search from '../../components/Search';
 import CardList from '../../components/CardList/CardList';
 import Pagination from '../../components/Pagination/Pagination';
-import { getPeopleQuery } from './utils';
-import { PersonList } from '../../types';
 import { LS_KEYS } from '../../constants';
 
 import './MainPage.css';
+import ThemeSelector from '../../components/ThemeSelector/ThemeSelector';
 
 const MainPage: React.FC = () => {
-  const [personList, setPersonList] = useState<PersonList>({
-    people: [],
-    count: 0,
-    progress: false,
-  });
-
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useSearchQuery(LS_KEYS.SearchQuery);
+  const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
+  const [testError, setTestError] = useState<boolean>(false);
 
   const searchParamPage = searchParams.get('page');
   const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
 
-  const loadPeople = useCallback((query?: string) => {
-    const PEOPLE_URL = `people`;
-    const resource = query ? `${PEOPLE_URL}?${query}` : PEOPLE_URL;
-    const setPersonListProgress = (progress: boolean) => {
-      setPersonList((list) => ({ ...list, progress }));
-    };
+  const { data, isLoading } = useGetPeopleQuery({ page, search: searchTerm });
 
-    setPersonListProgress(true);
-
-    fetchData<ApiResponsePeople>(resource)
-      .then((data) => {
-        setPersonList({
-          people: data.results,
-          count: data.count,
-          progress: false,
-        });
-      })
-      .catch((error) => {
-        setPersonListProgress(false);
-        console.error('Error fetching data:', error);
-      });
-  }, []);
-
-  const handleSearch = (searchQuery: string) => {
+  const handleSearch = (searchTerm: string) => {
     setSearchParams();
-    setSearchQuery(searchQuery);
+    setSearchTerm(searchTerm);
     navigate('/');
   };
 
@@ -72,7 +45,8 @@ const MainPage: React.FC = () => {
       searchParams.get('details') &&
       !target.closest('.card') &&
       !target.closest('.person') &&
-      !target.closest('.pagination')
+      !target.closest('.pagination') &&
+      !target.closest('.flyout')
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('details');
@@ -82,42 +56,33 @@ const MainPage: React.FC = () => {
     }
   };
 
-  function setInvalidState() {
-    setPersonList({ ...personList, people: {} as [] });
+  if (testError) {
+    throw new Error('Test error');
   }
-
-  useEffect(() => {
-    const pageQuery = page ? String(page) : undefined;
-    const query = getPeopleQuery(pageQuery, searchQuery);
-
-    loadPeople(query);
-  }, [page, searchQuery, loadPeople]);
 
   return (
     <div className="main-page">
       <div className="top-section">
-        <Search searchQuery={searchQuery ?? ''} onSearch={handleSearch} />
+        <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
         <button
           onClick={() => {
-            setInvalidState();
+            setTestError(true);
           }}
         >
           Throw Error
         </button>
+        <ThemeSelector />
       </div>
       <div className="bottom-section" onClick={handleClickSection}>
         <div className="bottom-section__list">
           <div className="bottom-section__list-content">
-            <CardList
-              people={personList.people}
-              progress={personList.progress}
-            />
+            <CardList people={data?.results ?? []} progress={isLoading} />
           </div>
           <div className="bottom-section__list-pagination">
             <Pagination
               page={page ?? 1}
-              count={personList.count}
-              progress={personList.progress}
+              count={data?.count ?? 1}
+              progress={isLoading}
               setPage={handleSetPage}
             />
           </div>

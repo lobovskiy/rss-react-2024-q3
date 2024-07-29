@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 
 interface Props {
-  searchQuery: string;
+  searchTerm: string;
   onSearch: (searchQuery: string) => void;
 }
 
-const Search: React.FC<Props> = ({ searchQuery, onSearch }) => {
-  const [inputValue, setInputValue] = useState(searchQuery);
+const Search: React.FC<Props> = ({ searchTerm, onSearch }) => {
+  const [inputValue, setInputValue] = useState(searchTerm);
 
   useEffect(() => {
-    setInputValue(searchQuery);
-  }, [searchQuery]);
+    setInputValue(searchTerm);
+  }, [searchTerm]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -18,7 +18,7 @@ const Search: React.FC<Props> = ({ searchQuery, onSearch }) => {
   };
 
   return (
-    <form className="search" onSubmit={handleSubmit}>
+    <form className="search" onSubmit={handleSubmit} data-testid="search-form">
       <input
         type="text"
         value={inputValue}

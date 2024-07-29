@@ -1,13 +1,23 @@
-const BASE_URL = 'https://swapi.dev/api/';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { PeopleResponse } from './types';
+import { Person } from '../types';
+import { removeEmptyParams } from './utils';
 
-export const fetchData = async <T>(resource?: string): Promise<T> => {
-  const url = resource ? `${BASE_URL}${resource}` : BASE_URL;
+export const api = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://swapi.dev/api/' }),
+  endpoints: (builder) => ({
+    getPeople: builder.query<PeopleResponse, Record<string, unknown>>({
+      query: (arg) => ({
+        url: `people`,
+        params: removeEmptyParams(arg),
+      }),
+    }),
+    getPersonById: builder.query<Person, number>({
+      query: (id) => ({
+        url: `people/${id}`,
+      }),
+    }),
+  }),
+});
 
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-
-  return (await response.json()) as T;
-};
+export const { useGetPeopleQuery, useGetPersonByIdQuery } = api;

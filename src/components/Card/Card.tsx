@@ -1,41 +1,19 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
 
-import { fetchData } from '../../services/apiService';
-import { Person } from '../../types';
+import { useGetPersonByIdQuery } from '../../services/apiService';
 
 import './Card.css';
 
 const Card: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const id = searchParams.get('details');
+  const searchParamId = searchParams.get('details');
+  const id = searchParamId ? parseInt(searchParamId, 10) : 0;
 
-  const [person, setPerson] = useState<Person | null>(null);
-  const [progress, setProgress] = useState<boolean>(false);
+  const { data: person, isLoading } = useGetPersonByIdQuery(id);
 
   const navigate = useNavigate();
 
-  const loadPerson = useCallback((id: string) => {
-    setProgress(true);
-
-    fetchData<Person>(`people/${id}`)
-      .then((data) => {
-        setPerson(data);
-        setProgress(false);
-      })
-      .catch((error) => {
-        setProgress(false);
-        console.error('Error fetching data:', error);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (id !== null) {
-      loadPerson(id);
-    }
-  }, [id, loadPerson]);
-
-  if (!progress && id === null) {
+  if (!isLoading && id === 0) {
     return null;
   }
 
@@ -48,7 +26,7 @@ const Card: React.FC = () => {
   };
 
   const renderPersonDetails = () => {
-    if (progress) {
+    if (isLoading) {
       return <div className="card__details">Loading...</div>;
     }
 

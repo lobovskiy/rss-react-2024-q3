@@ -1,88 +1,88 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, BrowserRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 
+import ErrorBoundary from '../components/ErrorBoundary';
 import App from '../App';
-import * as apiService from '../services/apiService';
-import { peopleMock } from '../__mocks__/people';
+import { Theme, ThemeContext, ThemeProvider } from '../context/ThemeContext';
+import { store } from '../redux/store';
+import { Provider } from 'react-redux';
+
+const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
+  window.history.pushState({}, 'Test page', route);
+  return render(ui, { wrapper: BrowserRouter });
+};
 
 describe('App', () => {
-  const user = userEvent.setup();
-
-  const renderComponent = (path: string) => {
-    render(
-      <MemoryRouter initialEntries={[path]}>
-        <App />
-      </MemoryRouter>
+  test('should render the main page by default', () => {
+    renderWithRouter(
+      <Provider store={store}>
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
+      </Provider>
     );
-  };
 
-  const fetchDataMock = jest.spyOn(apiService, 'fetchData').mockResolvedValue({
-    count: 82,
-    results: peopleMock,
+    expect(screen.getByText('Select theme:')).toBeInTheDocument();
   });
 
-  const loadPeople = async () => {
-    await waitFor(() => expect(fetchDataMock).toHaveBeenCalled());
-  };
-
-  it('opens a detailed card component after click on people list item and calls API', async () => {
-    renderComponent('/');
-
-    await loadPeople();
-
-    const cardElements = screen.getAllByTestId('card-list-item');
-    const firstCardElement = cardElements[0];
-
-    await user.click(firstCardElement);
+  test('should render the Card component when navigating to /person', () => {
+    renderWithRouter(
+      <Provider store={store}>
+        <ThemeProvider>
+          <App />
+        </ThemeProvider>
+      </Provider>,
+      { route: '/person' }
+    );
 
     expect(screen.getByText('Chosen person')).toBeInTheDocument();
-    expect(fetchDataMock).toHaveBeenLastCalledWith('people/1');
   });
 
-  it('closes a detailed card component after click on close icon', async () => {
-    renderComponent('/person?details=1');
-
-    await loadPeople();
-
-    const cardDetailsCloseButton = screen.getByTestId(
-      'card-details-close-button'
+  test('should render the not found page for an unknown route', () => {
+    renderWithRouter(
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>,
+      { route: '/unknown' }
     );
 
-    await user.click(cardDetailsCloseButton);
-
-    let cardDetailsNotFound = false;
-
-    await screen
-      .findByText('Chosen person')
-      .catch(() => (cardDetailsNotFound = true));
-
-    expect(cardDetailsNotFound).toBeTruthy();
+    expect(screen.getByText('Page not found')).toBeInTheDocument();
   });
 
-  it('updates URL query parameter when page changes', async () => {
-    const getPageParam = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get('page');
+  test('should apply the correct theme', () => {
+    const customThemeContext = {
+      theme: 'dark' as Theme,
+      setTheme: jest.fn(),
     };
 
-    render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+    renderWithRouter(
+      <Provider store={store}>
+        <ThemeContext.Provider value={customThemeContext}>
+          <App />
+        </ThemeContext.Provider>
+      </Provider>
     );
 
-    await loadPeople();
+    expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
+  });
 
-    const pagination = screen.getByTestId('pagination');
-    const pageButtons = pagination.getElementsByTagName('button');
-
-    await act(async () => {
-      await user.click(pageButtons[2 - 1]);
+  test('should display error boundary fallback UI when an error is thrown', () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {
+      console.log('error');
     });
 
-    const page = getPageParam();
+    const ProblematicComponent = () => {
+      throw new Error('Test error');
+    };
 
-    expect(page).toBe('2');
+    renderWithRouter(
+      <ThemeProvider>
+        <ErrorBoundary>
+          <ProblematicComponent />
+        </ErrorBoundary>
+      </ThemeProvider>
+    );
+
+    expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
   });
 });

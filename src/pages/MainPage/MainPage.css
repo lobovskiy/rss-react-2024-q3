@@ -1,8 +1,12 @@
-.main-page {
+.wrapper {
   display: flex;
   width: 100%;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 4rem);
+}
+
+.main-page {
+  height: 100%;
 }
 
 .top-section {
@@ -10,11 +14,17 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  height: 4rem;
   padding-block: 2rem;
+}
+
+.dark-theme .top-section {
+  color: white;
 }
 
 .bottom-section {
   width: 100%;
+  height: calc(100% - 4rem);
   flex: 3;
   display: grid;
   grid-auto-flow: column;

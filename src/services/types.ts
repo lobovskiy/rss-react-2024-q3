@@ -1,6 +1,11 @@
 import { Person } from '../types';
 
-export interface ApiResponsePeople {
-  count: number;
+export interface PeopleResponse {
   results: Person[];
+  count: number;
+}
+
+export interface PeopleRequest {
+  page?: number;
+  search?: string;
 }
