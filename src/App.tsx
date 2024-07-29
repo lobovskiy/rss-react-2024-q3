@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -13,7 +13,7 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <div className={`wrapper ${theme}-theme`}>
+      <div className={`wrapper ${theme}-theme`} data-testid="app-wrapper">
         <Routes>
           <Route path="/" element={<MainPage />}>
             <Route path="person" element={<Card />} />

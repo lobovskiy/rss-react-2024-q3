@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react';
 import { LS_KEYS } from '../constants';
 
-type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark';
 
 interface Props {
   theme: Theme;

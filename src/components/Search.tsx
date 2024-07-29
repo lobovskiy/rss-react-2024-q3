@@ -18,7 +18,7 @@ const Search: React.FC<Props> = ({ searchTerm, onSearch }) => {
   };
 
   return (
-    <form className="search" onSubmit={handleSubmit}>
+    <form className="search" onSubmit={handleSubmit} data-testid="search-form">
       <input
         type="text"
         value={inputValue}
