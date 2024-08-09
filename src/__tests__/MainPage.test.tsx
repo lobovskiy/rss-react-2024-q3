@@ -6,8 +6,9 @@ import userEvent from '@testing-library/user-event';
 import MainPage from '../pages/MainPage/MainPage';
 import Card from '../components/Card/Card';
 
-import { store } from '../redux/store';
 import * as apiService from '../services/apiService';
+import { store } from '../redux/store';
+import { Theme, ThemeContext } from '../context/ThemeContext';
 
 import { peopleMock } from '../__mocks__/people';
 
@@ -94,5 +95,24 @@ describe('Main page', () => {
     const page = getPageParam();
 
     expect(page).toBe('2');
+  });
+
+  test('should apply the correct theme', () => {
+    const customThemeContext = {
+      theme: 'dark' as Theme,
+      setTheme: jest.fn(),
+    };
+
+    render(
+      <Provider store={store}>
+        <ThemeContext.Provider value={customThemeContext}>
+          <BrowserRouter>
+            <MainPage />
+          </BrowserRouter>
+        </ThemeContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
   });
 });
