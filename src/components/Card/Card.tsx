@@ -9,11 +9,11 @@ const Card: React.FC = () => {
   const searchParamId = searchParams.get('details');
   const id = searchParamId ? parseInt(searchParamId, 10) : 0;
 
-  const { data: person, isLoading } = useGetPersonByIdQuery(id);
+  const { data: person, isFetching } = useGetPersonByIdQuery(id);
 
   const navigate = useNavigate();
 
-  if (!isLoading && id === 0) {
+  if (!isFetching && id === 0) {
     return null;
   }
 
@@ -26,7 +26,7 @@ const Card: React.FC = () => {
   };
 
   const renderPersonDetails = () => {
-    if (isLoading) {
+    if (isFetching) {
       return <div className="card__details">Loading...</div>;
     }
 
