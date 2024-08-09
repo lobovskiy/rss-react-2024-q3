@@ -106,6 +106,7 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
               onChange={(event) => {
                 setSelectedPerson(id, event.target.checked);
               }}
+              data-testid="card-list-item-checkbox"
             />
             <button
               onClick={() => {

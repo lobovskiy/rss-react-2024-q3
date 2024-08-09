@@ -24,7 +24,7 @@ describe('Card', () => {
   it('shows loading indicator while data is not loaded', () => {
     useGetPersonByIdQueryMock.mockReturnValue({
       data: null,
-      isLoading: true,
+      isFetching: true,
     });
 
     renderComponent('/person?details=1');
@@ -37,7 +37,7 @@ describe('Card', () => {
   it('shows person details correctly when data is loaded', () => {
     useGetPersonByIdQueryMock.mockReturnValue({
       data: personMock,
-      isLoading: false,
+      isFetching: false,
     });
 
     renderComponent('/person?details=1');

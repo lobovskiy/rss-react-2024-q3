@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -8,6 +9,8 @@ import { peopleMock } from '../__mocks__/people';
 import { Person } from '../types';
 
 describe('CardList component', () => {
+  const user = userEvent.setup();
+
   const renderComponent = (people: Person[]) => {
     render(
       <Provider store={store}>
@@ -39,5 +42,17 @@ describe('CardList component', () => {
     const firstCardElement = cardElements[0];
 
     expect(firstCardElement.textContent).toContain(peopleMock[0].name);
+  });
+
+  it('should show flyout if cards are selected', async () => {
+    renderComponent(peopleMock);
+
+    const cardElement = screen.getAllByTestId('card-list-item-checkbox');
+
+    await user.click(cardElement[0]);
+
+    const flyout = screen.getByText('1 items selected');
+
+    expect(flyout).toBeInTheDocument();
   });
 });
