@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import App from '../App';
+import { Theme, ThemeContext } from '../context/ThemeContext';
 
 const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
   window.history.pushState({}, 'Test page', route);
@@ -24,5 +25,19 @@ describe('App', () => {
     renderWithRouter(<App />, { route: '/unknown' });
 
     expect(screen.getByText('Page not found')).toBeInTheDocument();
+  });
+
+  test('should apply the correct theme', () => {
+    const customThemeContext = {
+      theme: 'dark' as Theme,
+      setTheme: jest.fn(),
+    };
+
+    renderWithRouter(
+      <ThemeContext.Provider value={customThemeContext}>
+        <App />
+      </ThemeContext.Provider>
+    );
+    expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
   });
 });

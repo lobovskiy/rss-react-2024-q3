@@ -1,8 +1,7 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useGetPeopleQuery } from '../../services/apiService';
-import { ThemeContext } from '../../context/ThemeContext';
 import useSearchTerm from '../../hooks/useSearchTerm';
 
 import ThemeSelector from '../../components/ThemeSelector/ThemeSelector';
@@ -15,7 +14,6 @@ import './MainPage.css';
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
-  const { theme } = useContext(ThemeContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
   const [testError, setTestError] = useState<boolean>(false);
@@ -63,36 +61,34 @@ const MainPage: React.FC = () => {
   }
 
   return (
-    <div className={`wrapper ${theme}-theme`} data-testid="app-wrapper">
-      <div className="main-page">
-        <div className="top-section">
-          <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
-          <button
-            onClick={() => {
-              setTestError(true);
-            }}
-          >
-            Throw Error
-          </button>
-          <ThemeSelector />
-        </div>
-        <div className="bottom-section" onClick={handleClickSection}>
-          <div className="bottom-section__list">
-            <div className="bottom-section__list-content">
-              <CardList people={data?.results ?? []} progress={isFetching} />
-            </div>
-            <div className="bottom-section__list-pagination">
-              <Pagination
-                page={page ?? 1}
-                count={data?.count ?? 1}
-                progress={isFetching}
-                setPage={handleSetPage}
-              />
-            </div>
+    <div className="main-page">
+      <div className="top-section">
+        <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
+        <button
+          onClick={() => {
+            setTestError(true);
+          }}
+        >
+          Throw Error
+        </button>
+        <ThemeSelector />
+      </div>
+      <div className="bottom-section" onClick={handleClickSection}>
+        <div className="bottom-section__list">
+          <div className="bottom-section__list-content">
+            <CardList people={data?.results ?? []} progress={isFetching} />
           </div>
-
-          <Outlet />
+          <div className="bottom-section__list-pagination">
+            <Pagination
+              page={page ?? 1}
+              count={data?.count ?? 1}
+              progress={isFetching}
+              setPage={handleSetPage}
+            />
+          </div>
         </div>
+
+        <Outlet />
       </div>
     </div>
   );
