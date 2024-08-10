@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { saveAs } from 'file-saver';
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -18,8 +18,8 @@ interface Props {
 }
 
 const CardList: React.FC<Props> = ({ people, progress }) => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const dispatch = useAppDispatch();
   const selectedPeople = useAppSelector((state) => state.selectedPeople.ids);
@@ -34,7 +34,7 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
       newSearchParams.set('details', personIndex);
       const queryParams = newSearchParams.toString();
 
-      navigate(`/person?${queryParams}`);
+      router.push(`/person?${queryParams}`);
     }
   };
 

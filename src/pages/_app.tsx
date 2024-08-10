@@ -2,8 +2,8 @@ import type { AppProps } from 'next/app';
 
 import '../index.css';
 
-const App = ({ Component, pageProps }: AppProps) => (
+const SwApp = ({ Component, pageProps }: AppProps) => (
   <Component {...pageProps} />
 );
 
-export default App;
+export default SwApp;

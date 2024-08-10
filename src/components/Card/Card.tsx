@@ -1,17 +1,16 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useGetPersonByIdQuery } from '../../services/apiService';
 
 import styles from './Card.module.css';
 
 const Card: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const searchParamId = searchParams.get('details');
   const id = searchParamId ? parseInt(searchParamId, 10) : 0;
 
   const { data: person, isFetching } = useGetPersonByIdQuery(id);
-
-  const navigate = useNavigate();
 
   if (!isFetching && id === 0) {
     return null;
@@ -22,7 +21,7 @@ const Card: React.FC = () => {
     newSearchParams.delete('details');
     const queryParams = newSearchParams.toString();
 
-    navigate(`/?${queryParams}`);
+    router.push(`/?${queryParams}`);
   };
 
   const renderPersonDetails = () => {
