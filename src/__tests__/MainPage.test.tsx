@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Provider } from 'react-redux';
 
 import MainPage from '../pageComponents/MainPage/MainPage';
 import Card from '../components/Card/Card';
@@ -11,88 +12,95 @@ import { store } from '../redux/store';
 
 import { peopleMock } from '../__mocks__/people';
 
+jest.mock('../services/apiService', () => ({
+  __esModule: true,
+  ...jest.requireActual<typeof apiService>('../services/apiService'),
+}));
+jest.mock('next/navigation', () => ({
+  ...jest.requireActual<typeof import('next/navigation')>('next/navigation'),
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+}));
+
 describe('Main page', () => {
   const user = userEvent.setup();
-
-  const renderComponent = (path: string) => {
-    render(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={[path]}>
-          <Routes>
-            <Route path="/" element={<MainPage />}>
-              <Route path="person" element={<Card />} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </Provider>
-    );
-  };
-
+  const routerPushMock = jest.fn();
   const useGetPeopleQueryMock = jest.spyOn(
     apiService,
     'useGetPeopleQuery'
   ) as jest.Mock;
-  const useGetPersonByIdQueryMock = jest.spyOn(
-    apiService,
-    'useGetPersonByIdQuery'
-  ) as jest.Mock;
 
-  it('opens a detailed card component after click on people list item and calls API', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ push: routerPushMock });
+  });
+
+  const renderComponent = (PersonCard?: React.ElementType) => {
+    render(
+      <Provider store={store}>
+        <MainPage PersonCard={PersonCard} />
+      </Provider>
+    );
+  };
+
+  it('goes to person page on click on people list item ', async () => {
     useGetPeopleQueryMock.mockReturnValue({
       data: { count: 82, results: peopleMock },
       isLoading: false,
     });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(1),
+    });
 
-    renderComponent('/');
+    renderComponent();
 
     const cardElements = screen.getAllByTestId('card-list-item');
     const firstCardElement = cardElements[0];
 
     await user.click(firstCardElement);
 
-    expect(screen.getByText('Chosen person')).toBeInTheDocument();
-    expect(useGetPersonByIdQueryMock).toHaveBeenLastCalledWith(1);
+    expect(routerPushMock).toHaveBeenLastCalledWith(
+      expect.stringMatching(/\/person(\?)?/)
+    );
   });
 
   it('closes a detailed card component after click on close icon', async () => {
-    renderComponent('/person?details=1');
+    useGetPeopleQueryMock.mockReturnValue({
+      data: { count: 82, results: peopleMock },
+      isLoading: false,
+    });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(1),
+    });
+
+    renderComponent(Card);
 
     const cardDetailsCloseButton = screen.getByTestId(
       'card-details-close-button'
     );
 
     await user.click(cardDetailsCloseButton);
-
-    let cardDetailsNotFound = false;
-
-    await screen
-      .findByText('Chosen person')
-      .catch(() => (cardDetailsNotFound = true));
-
-    expect(cardDetailsNotFound).toBeTruthy();
+    expect(routerPushMock).toHaveBeenLastCalledWith(
+      expect.stringMatching(/\/(\?)?/)
+    );
   });
 
   it('updates URL query parameter when page changes', async () => {
-    const getPageParam = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get('page');
-    };
+    useGetPeopleQueryMock.mockReturnValue({
+      data: { count: 82, results: peopleMock },
+      isLoading: false,
+    });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(1),
+    });
 
-    render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <MainPage />
-        </BrowserRouter>
-      </Provider>
-    );
+    renderComponent();
 
     const pagination = screen.getByTestId('pagination');
     const pageButtons = pagination.getElementsByTagName('button');
 
     await user.click(pageButtons[2 - 1]);
 
-    const page = getPageParam();
-
-    expect(page).toBe('2');
+    expect(routerPushMock).toHaveBeenLastCalledWith('/?page=2');
   });
 });

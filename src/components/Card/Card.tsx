@@ -44,7 +44,7 @@ const Card: React.FC = () => {
     } = person;
 
     return (
-      <div className={styles.card__details}>
+      <div className={styles.card__details} data-testid="card-details">
         <div>Name: {name}</div>
         <div>Gender: {gender}</div>
         <div>Height: {height}</div>

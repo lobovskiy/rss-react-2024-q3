@@ -1,43 +1,51 @@
 import { render, screen } from '@testing-library/react';
+import * as React from 'react';
 
+import { useRouter, useSearchParams } from 'next/navigation';
+
+import { ThemeContext } from '../context/ThemeContext';
 import App from '../App';
-import { Theme, ThemeContext } from '../context/ThemeContext';
+import Card from '../components/Card/Card';
 
-const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route);
-  return render(ui);
-};
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+}));
 
 describe('App', () => {
+  const pushMock = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(null),
+    });
+  });
+
+  const renderComponent = (PersonCard?: React.ElementType) => {
+    render(<App PersonCard={PersonCard} />);
+  };
+
   test('should render the main page by default', () => {
-    renderWithRouter(<App />);
+    renderComponent();
 
     expect(screen.getByText('Select theme:')).toBeInTheDocument();
   });
 
-  test('should render the Card component when navigating to /person', () => {
-    renderWithRouter(<App />, { route: '/person' });
+  test('should render the Card component with person card component', () => {
+    renderComponent(Card);
 
     expect(screen.getByText('Chosen person')).toBeInTheDocument();
   });
 
-  test('should render the not found page for an unknown route', () => {
-    renderWithRouter(<App />, { route: '/unknown' });
-
-    expect(screen.getByText('Page not found')).toBeInTheDocument();
-  });
-
   test('should apply the correct theme', () => {
-    const customThemeContext = {
-      theme: 'dark' as Theme,
-      setTheme: jest.fn(),
-    };
-
-    renderWithRouter(
-      <ThemeContext.Provider value={customThemeContext}>
+    render(
+      <ThemeContext.Provider value={{ theme: 'dark', setTheme: jest.fn() }}>
         <App />
       </ThemeContext.Provider>
     );
+
     expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
   });
 });
