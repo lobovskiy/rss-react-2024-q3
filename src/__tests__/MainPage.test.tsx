@@ -3,7 +3,7 @@ import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import MainPage from '../pages/MainPage/MainPage';
+import MainPage from '../pageComponents/MainPage/MainPage';
 import Card from '../components/Card/Card';
 
 import * as apiService from '../services/apiService';

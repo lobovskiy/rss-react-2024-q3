@@ -10,7 +10,7 @@ import CardList from '../../components/CardList/CardList';
 import Pagination from '../../components/Pagination/Pagination';
 import { LS_KEYS } from '../../constants';
 
-import './MainPage.css';
+import styles from './MainPage.module.css';
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,8 +61,8 @@ const MainPage: React.FC = () => {
   }
 
   return (
-    <div className="main-page">
-      <div className="top-section">
+    <div className={styles['main-page']}>
+      <div className={styles['top-section']}>
         <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
         <button
           onClick={() => {
@@ -73,12 +73,12 @@ const MainPage: React.FC = () => {
         </button>
         <ThemeSelector />
       </div>
-      <div className="bottom-section" onClick={handleClickSection}>
-        <div className="bottom-section__list">
-          <div className="bottom-section__list-content">
+      <div className={styles['bottom-section']} onClick={handleClickSection}>
+        <div className={styles['bottom-section__list']}>
+          <div className={styles['bottom-section__list-content']}>
             <CardList people={data?.results ?? []} progress={isFetching} />
           </div>
-          <div className="bottom-section__list-pagination">
+          <div className={styles['bottom-section__list-pagination']}>
             <Pagination
               page={page ?? 1}
               count={data?.count ?? 1}

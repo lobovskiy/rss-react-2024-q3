@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
+import NotFoundPage from '../pageComponents/NotFoundPage/NotFoundPage';
 
 describe('NotFoundPage', () => {
   test('should render the not found message', () => {

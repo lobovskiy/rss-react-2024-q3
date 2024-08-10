@@ -5,12 +5,12 @@ import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { store } from './redux/store';
 import { ThemeContext } from './context/ThemeContext';
 
-import MainPage from './pages/MainPage/MainPage';
-import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
+import MainPage from './pageComponents/MainPage/MainPage';
+import NotFoundPage from './pageComponents/NotFoundPage/NotFoundPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import Card from './components/Card/Card';
 
-import './App.css';
+import styles from './App.module.css';
 
 const App: React.FC = () => {
   const { theme } = useContext(ThemeContext);
@@ -19,7 +19,10 @@ const App: React.FC = () => {
     <Provider store={store}>
       <BrowserRouter>
         <ErrorBoundary>
-          <div className={`wrapper ${theme}-theme`} data-testid="app-wrapper">
+          <div
+            className={`${styles.wrapper} ${theme}-theme`}
+            data-testid="app-wrapper"
+          >
             <Routes>
               <Route path="/" element={<MainPage />}>
                 <Route path="person" element={<Card />} />

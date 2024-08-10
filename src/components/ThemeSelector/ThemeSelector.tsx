@@ -1,13 +1,11 @@
 import { useContext } from 'react';
 import { ThemeContext } from '../../context/ThemeContext';
 
-import './ThemeSelector.css';
-
 const ThemeSelector: React.FC = () => {
   const { theme, setTheme } = useContext(ThemeContext);
 
   return (
-    <div className="theme-selector">
+    <div>
       <label htmlFor="theme">Select theme: </label>
       <select
         id="theme"
