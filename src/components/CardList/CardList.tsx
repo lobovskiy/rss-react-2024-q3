@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { saveAs } from 'file-saver';
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -10,7 +10,7 @@ import {
 
 import { Person } from '../../types.ts';
 
-import './CardList.css';
+import styles from './CardList.module.css';
 
 interface Props {
   people: Person[];
@@ -18,8 +18,8 @@ interface Props {
 }
 
 const CardList: React.FC<Props> = ({ people, progress }) => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const dispatch = useAppDispatch();
   const selectedPeople = useAppSelector((state) => state.selectedPeople.ids);
@@ -34,12 +34,12 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
       newSearchParams.set('details', personIndex);
       const queryParams = newSearchParams.toString();
 
-      navigate(`/person?${queryParams}`);
+      router.push(`/person?${queryParams}`);
     }
   };
 
   if (!people.length) {
-    return <div className="people">There is no people found</div>;
+    return <div className={styles.people}>There is no people found</div>;
   }
 
   function setSelectedPerson(id: string | undefined, checked: boolean) {
@@ -85,9 +85,9 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
   }
 
   return (
-    <div className="people">
+    <div className={styles.people}>
       {people.map((person, index) => {
-        let className = 'person';
+        let className = styles.person;
         const urlSegments = person.url
           .split('/')
           .filter((segment) => segment !== '');
@@ -95,7 +95,7 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
         const details = searchParams.get('details') ?? undefined;
 
         if (id === details) {
-          className += ' person_active';
+          className += ` ${styles.person_active}`;
         }
 
         return (
@@ -122,7 +122,7 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
         );
       })}
       {selectedPeople.length > 0 && (
-        <div className="flyout">
+        <div className={styles.flyout}>
           <div>{selectedPeople.length} items selected</div>
           <button onClick={handleClickUnselectAll}>Unselect All</button>
           <button

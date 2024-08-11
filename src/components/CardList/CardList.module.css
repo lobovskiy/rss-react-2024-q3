@@ -1,0 +1,48 @@
+.people {
+  width: 200px;
+  margin-inline: auto;
+  padding: 2em;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.person button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+.dark-theme .person button {
+  background: none;
+}
+
+.person_active button,
+.dark-theme .person_active button,
+.person button:hover {
+  background-color: #4caf50;
+  color: white;
+}
+
+.flyout {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background-color: darkseagreen;
+}
+.dark-theme .flyout {
+  color: white;
+  background-color: darkorchid;
+}
