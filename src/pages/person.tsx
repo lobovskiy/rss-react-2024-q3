@@ -9,7 +9,7 @@ const ThemeProvider = dynamic(() => import('../context/ThemeContext'), {
   ssr: false,
 });
 
-const Person: React.FC = () => {
+const PersonPage: React.FC = () => {
   return (
     <ThemeProvider>
       <App PersonCard={Card} />
@@ -17,4 +17,4 @@ const Person: React.FC = () => {
   );
 };
 
-export default Person;
+export default PersonPage;

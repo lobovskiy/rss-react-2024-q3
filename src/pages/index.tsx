@@ -8,7 +8,7 @@ const ThemeProvider = dynamic(() => import('../context/ThemeContext'), {
   ssr: false,
 });
 
-const Home: React.FC = () => {
+const HomePage: React.FC = () => {
   return (
     <ThemeProvider>
       <App />
@@ -16,4 +16,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default HomePage;

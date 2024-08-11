@@ -34,7 +34,7 @@ const config: Config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
-  testPathIgnorePatterns: ['__tests__/test-utils.tsx'],
+  testPathIgnorePatterns: ['__tests__/testUtils.tsx'],
   transform: {
     '^.+\\.(ts|tsx)$': [
       'ts-jest',
@@ -50,6 +50,7 @@ const config: Config = {
     './src/__mocks__',
     './src/__tests__',
     'types\\.ts$',
+    'slice\\.ts$',
   ],
 };
 

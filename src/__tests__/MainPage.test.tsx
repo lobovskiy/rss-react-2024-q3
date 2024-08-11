@@ -29,6 +29,11 @@ describe('Main page', () => {
     apiService,
     'useGetPeopleQuery'
   ) as jest.Mock;
+  const useGetPeopleByIdQueryMock = jest.spyOn(
+    apiService,
+    'useGetPersonByIdQuery'
+  ) as jest.Mock;
+  useGetPeopleByIdQueryMock.mockReturnValue({});
 
   beforeEach(() => {
     jest.clearAllMocks();
