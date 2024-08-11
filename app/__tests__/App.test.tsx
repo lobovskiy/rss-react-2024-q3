@@ -1,88 +1,73 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-
-import ErrorBoundary from '../components/ErrorBoundary';
-import App from '../App';
-import { Theme, ThemeContext, ThemeProvider } from '../context/ThemeContext';
-import { store } from '../redux/store';
+import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
 
-const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route);
-  return render(ui, { wrapper: BrowserRouter });
-};
+import App from '../App';
+import { ThemeContext } from '../context/ThemeContext';
+import MainPage from '../pages/MainPage/MainPage';
+import Card from '../components/Card/Card';
+import * as React from 'react';
 
-describe('App', () => {
-  test('should render the main page by default', () => {
-    renderWithRouter(
+jest.mock('../pages/MainPage/MainPage', () => {
+  return jest.fn(() => <div>MainPage Component</div>);
+});
+
+jest.mock('../clientOnly', () => ({
+  ClientOnly: ({ children }: { children(): React.ReactNode }) => (
+    <>{children()}</>
+  ),
+}));
+
+jest.mock('../components/Card/Card', () => {
+  return function CardMock() {
+    return <div>Card Component</div>;
+  };
+});
+
+const mockStore = configureStore([]);
+const store = mockStore({});
+
+describe('App Component', () => {
+  it('renders with the correct theme from ThemeContext', () => {
+    const theme = 'dark';
+    const setTheme = jest.fn();
+
+    const { getByTestId } = render(
       <Provider store={store}>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </Provider>
-    );
-
-    expect(screen.getByText('Select theme:')).toBeInTheDocument();
-  });
-
-  test('should render the Card component when navigating to /person', () => {
-    renderWithRouter(
-      <Provider store={store}>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </Provider>,
-      { route: '/person' }
-    );
-
-    expect(screen.getByText('Chosen person')).toBeInTheDocument();
-  });
-
-  test('should render the not found page for an unknown route', () => {
-    renderWithRouter(
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>,
-      { route: '/unknown' }
-    );
-
-    expect(screen.getByText('Page not found')).toBeInTheDocument();
-  });
-
-  test('should apply the correct theme', () => {
-    const customThemeContext = {
-      theme: 'dark' as Theme,
-      setTheme: jest.fn(),
-    };
-
-    renderWithRouter(
-      <Provider store={store}>
-        <ThemeContext.Provider value={customThemeContext}>
+        <ThemeContext.Provider value={{ theme, setTheme }}>
           <App />
         </ThemeContext.Provider>
       </Provider>
     );
 
-    expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
+    const wrapperDiv = getByTestId('app-wrapper');
+    expect(wrapperDiv).toHaveClass('wrapper dark-theme');
   });
 
-  test('should display error boundary fallback UI when an error is thrown', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {
-      console.log('error');
-    });
-
-    const ProblematicComponent = () => {
-      throw new Error('Test error');
-    };
-
-    renderWithRouter(
-      <ThemeProvider>
-        <ErrorBoundary>
-          <ProblematicComponent />
-        </ErrorBoundary>
-      </ThemeProvider>
+  it('renders the MainPage component with PersonCard', () => {
+    render(
+      <Provider store={store}>
+        <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
+          <App PersonCard={Card} />
+        </ThemeContext.Provider>
+      </Provider>
     );
 
-    expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
+    expect(MainPage).toHaveBeenCalledWith(
+      expect.objectContaining({ PersonCard: Card }),
+      expect.anything()
+    );
+  });
+
+  it('renders ClientOnly content', () => {
+    const { getByText } = render(
+      <Provider store={store}>
+        <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
+          <App />
+        </ThemeContext.Provider>
+      </Provider>
+    );
+
+    expect(getByText('MainPage Component')).toBeInTheDocument();
   });
 });

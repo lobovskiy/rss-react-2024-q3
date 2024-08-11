@@ -1,98 +1,90 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
-
+import { render, screen, fireEvent } from '@testing-library/react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useGetPeopleQuery } from '../services/apiService';
+import useSearchTerm from '../hooks/useSearchTerm';
 import MainPage from '../pages/MainPage/MainPage';
-import Card from '../components/Card/Card';
-
-import { store } from '../redux/store';
-import * as apiService from '../services/apiService';
-
+import configureStore from 'redux-mock-store';
+import { Provider } from 'react-redux';
 import { peopleMock } from '../__mocks__/people';
 
-describe('Main page', () => {
-  const user = userEvent.setup();
+jest.mock('react-router-dom', () => ({
+  useNavigate: jest.fn(),
+  useSearchParams: jest.fn(),
+}));
 
-  const renderComponent = (path: string) => {
+jest.mock('../services/apiService', () => ({
+  useGetPeopleQuery: jest.fn(),
+}));
+
+jest.mock('../hooks/useSearchTerm', () => jest.fn());
+
+const mockStore = configureStore([]);
+const store = mockStore({
+  selectedPeople: { ids: ['1', '2', '3'] },
+});
+
+describe('MainPage Component', () => {
+  const mockNavigate = jest.fn();
+  const mockSetSearchParams = jest.fn();
+  const mockUseGetPeopleQuery = useGetPeopleQuery as jest.Mock;
+  const mockUseSearchTerm = useSearchTerm as jest.Mock;
+
+  beforeEach(() => {
+    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    (useSearchParams as jest.Mock).mockReturnValue([
+      new URLSearchParams(''),
+      mockSetSearchParams,
+    ]);
+    mockUseSearchTerm.mockReturnValue(['', jest.fn()]);
+    mockUseGetPeopleQuery.mockReturnValue({
+      data: { results: [], count: 0 },
+      isFetching: false,
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders Search, CardList, Pagination, and ThemeSelector components', () => {
     render(
       <Provider store={store}>
-        <MemoryRouter initialEntries={[path]}>
-          <Routes>
-            <Route path="/" element={<MainPage />}>
-              <Route path="person" element={<Card />} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
+        <MainPage />
       </Provider>
     );
-  };
 
-  const useGetPeopleQueryMock = jest.spyOn(
-    apiService,
-    'useGetPeopleQuery'
-  ) as jest.Mock;
-  const useGetPersonByIdQueryMock = jest.spyOn(
-    apiService,
-    'useGetPersonByIdQuery'
-  ) as jest.Mock;
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+    expect(screen.getByText('There is no people found')).toBeInTheDocument();
+  });
 
-  it('opens a detailed card component after click on people list item and calls API', async () => {
-    useGetPeopleQueryMock.mockReturnValue({
-      data: { count: 82, results: peopleMock },
-      isLoading: false,
+  it('navigates to the correct page when handleSetPage is called', () => {
+    mockUseGetPeopleQuery.mockReturnValue({
+      data: { results: peopleMock, count: 82 },
+      isFetching: false,
     });
 
-    renderComponent('/');
-
-    const cardElements = screen.getAllByTestId('card-list-item');
-    const firstCardElement = cardElements[0];
-
-    await user.click(firstCardElement);
-
-    expect(screen.getByText('Chosen person')).toBeInTheDocument();
-    expect(useGetPersonByIdQueryMock).toHaveBeenLastCalledWith(1);
-  });
-
-  it('closes a detailed card component after click on close icon', async () => {
-    renderComponent('/person?details=1');
-
-    const cardDetailsCloseButton = screen.getByTestId(
-      'card-details-close-button'
-    );
-
-    await user.click(cardDetailsCloseButton);
-
-    let cardDetailsNotFound = false;
-
-    await screen
-      .findByText('Chosen person')
-      .catch(() => (cardDetailsNotFound = true));
-
-    expect(cardDetailsNotFound).toBeTruthy();
-  });
-
-  it('updates URL query parameter when page changes', async () => {
-    const getPageParam = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get('page');
-    };
-
     render(
       <Provider store={store}>
-        <BrowserRouter>
-          <MainPage />
-        </BrowserRouter>
+        <MainPage />
       </Provider>
     );
 
-    const pagination = screen.getByTestId('pagination');
-    const pageButtons = pagination.getElementsByTagName('button');
+    const setPageButton = screen.getByText('2');
 
-    await user.click(pageButtons[2 - 1]);
+    fireEvent.click(setPageButton);
 
-    const page = getPageParam();
+    expect(mockNavigate).toHaveBeenCalledWith('/?page=2');
+  });
 
-    expect(page).toBe('2');
+  it('renders the PersonCard component if provided', () => {
+    const PersonCard = () => <div>PersonCard</div>;
+
+    render(
+      <Provider store={store}>
+        <MainPage PersonCard={PersonCard} />
+      </Provider>
+    );
+
+    expect(screen.getByText('PersonCard')).toBeInTheDocument();
   });
 });

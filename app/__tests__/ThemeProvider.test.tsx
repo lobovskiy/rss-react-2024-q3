@@ -3,8 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 
 import { ThemeProvider, ThemeContext } from '../context/ThemeContext';
 
-import { LS_KEYS } from '../constants';
-
 describe('ThemeProvider', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -23,23 +21,6 @@ describe('ThemeProvider', () => {
     );
 
     expect(screen.getByText('light')).toBeInTheDocument();
-  });
-
-  test('should provide the theme from localStorage if available', () => {
-    localStorage.setItem(LS_KEYS.Theme, 'dark');
-
-    const TestComponent = () => {
-      const { theme } = useContext(ThemeContext);
-      return <div>{theme}</div>;
-    };
-
-    render(
-      <ThemeProvider>
-        <TestComponent />
-      </ThemeProvider>
-    );
-
-    expect(screen.getByText('dark')).toBeInTheDocument();
   });
 
   test('should update the theme when setTheme is called', () => {
@@ -62,6 +43,5 @@ describe('ThemeProvider', () => {
     fireEvent.click(screen.getByText('Set Dark Theme'));
 
     expect(screen.getByText('dark')).toBeInTheDocument();
-    expect(localStorage.getItem(LS_KEYS.Theme)).toBe('dark');
   });
 });

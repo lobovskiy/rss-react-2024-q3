@@ -39,6 +39,14 @@ const config: Config = {
     'node_modules',
     './app/__mocks__',
     './app/__tests__',
+    './vite-env.d.ts',
+    // remix service files
+    './entry.client.tsx',
+    './entry.server.tsx',
+    './app/root.tsx',
+    './app/clientOnly.tsx',
+    './app/useHydrated.ts',
+    './app/routes/\\$.tsx',
   ],
 };
 

@@ -1,7 +1,7 @@
 import App from '../App';
 import { ThemeProvider } from '../context/ThemeContext';
 
-const PersonPage: React.FC = () => {
+const HomePage: React.FC = () => {
   return (
     <ThemeProvider>
       <App />
@@ -9,4 +9,4 @@ const PersonPage: React.FC = () => {
   );
 };
 
-export default PersonPage;
+export default HomePage;

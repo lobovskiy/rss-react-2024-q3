@@ -80,7 +80,11 @@ const MainPage: React.FC<Props> = ({ PersonCard }) => {
         </button>
         <ThemeSelector />
       </div>
-      <div className="bottom-section" onClick={handleClickSection}>
+      <div
+        className="bottom-section"
+        onClick={handleClickSection}
+        data-testid="bottom-section"
+      >
         <div className="bottom-section__list">
           <div className="bottom-section__list-content">
             <CardList people={data?.results ?? []} progress={isFetching} />
