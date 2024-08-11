@@ -1,22 +1,36 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
+
 import { Provider } from 'react-redux';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { store } from '../redux/store';
 import CardList from '../components/CardList/CardList';
-import { peopleMock } from '../__mocks__/people';
 import { Person } from '../types';
+
+import { peopleMock } from '../__mocks__/people';
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+}));
 
 describe('CardList component', () => {
   const user = userEvent.setup();
+  const pushMock = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(null),
+    });
+  });
 
   const renderComponent = (people: Person[]) => {
     render(
       <Provider store={store}>
-        <MemoryRouter initialEntries={['/']}>
-          <CardList people={people} progress={false} />
-        </MemoryRouter>
+        <CardList people={people} progress={false} />
       </Provider>
     );
   };
