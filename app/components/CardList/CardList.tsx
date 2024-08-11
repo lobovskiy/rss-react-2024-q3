@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { saveAs } from 'file-saver';
+import fsPkg from 'file-saver';
+const { saveAs } = fsPkg;
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {

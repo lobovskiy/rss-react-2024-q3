@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const useSearchTerm = (
-  lsKey: string
+  lsKey: string,
+  initialValue?: string | undefined
 ): [string | undefined, (query: string) => void] => {
   const [searchQuery, setSearchQuery] = useState<string | undefined>(
-    localStorage.getItem(lsKey) ?? undefined
+    initialValue
   );
 
   const saveSearchTermToLs = useCallback(() => {

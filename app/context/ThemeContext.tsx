@@ -1,5 +1,4 @@
 import { createContext, useState } from 'react';
-import { LS_KEYS } from '../constants';
 
 export type Theme = 'light' | 'dark';
 
@@ -18,13 +17,7 @@ const ThemeContext = createContext<Props>({
 const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setThemeState] = useState<Theme>(
-    (localStorage.getItem(LS_KEYS.Theme) as Theme) || 'light'
-  );
-  const setTheme = (theme: Theme) => {
-    setThemeState(theme);
-    localStorage.setItem(LS_KEYS.Theme, theme);
-  };
+  const [theme, setTheme] = useState<Theme>('light');
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>

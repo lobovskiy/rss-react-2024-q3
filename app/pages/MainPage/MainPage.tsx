@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useGetPeopleQuery } from '../../services/apiService';
 import useSearchTerm from '../../hooks/useSearchTerm';
@@ -12,16 +12,23 @@ import { LS_KEYS } from '../../constants';
 import './MainPage.css';
 import ThemeSelector from '../../components/ThemeSelector/ThemeSelector';
 
-const MainPage: React.FC = () => {
+interface Props {
+  PersonCard?: React.ElementType;
+}
+
+const MainPage: React.FC<Props> = ({ PersonCard }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
+  const [searchTerm, setSearchTerm] = useSearchTerm(
+    LS_KEYS.SearchQuery,
+    localStorage.getItem(LS_KEYS.SearchQuery) ?? undefined
+  );
   const [testError, setTestError] = useState<boolean>(false);
 
   const searchParamPage = searchParams.get('page');
   const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
 
-  const { data, isLoading } = useGetPeopleQuery({ page, search: searchTerm });
+  const { data, isFetching } = useGetPeopleQuery({ page, search: searchTerm });
 
   const handleSearch = (searchTerm: string) => {
     setSearchParams();
@@ -76,19 +83,19 @@ const MainPage: React.FC = () => {
       <div className="bottom-section" onClick={handleClickSection}>
         <div className="bottom-section__list">
           <div className="bottom-section__list-content">
-            <CardList people={data?.results ?? []} progress={isLoading} />
+            <CardList people={data?.results ?? []} progress={isFetching} />
           </div>
           <div className="bottom-section__list-pagination">
             <Pagination
               page={page ?? 1}
               count={data?.count ?? 1}
-              progress={isLoading}
+              progress={isFetching}
               setPage={handleSetPage}
             />
           </div>
         </div>
 
-        <Outlet />
+        {PersonCard && <PersonCard />}
       </div>
     </div>
   );
