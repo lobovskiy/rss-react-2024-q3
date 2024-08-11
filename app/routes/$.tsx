@@ -1,12 +1,7 @@
-import App from '../App';
-import { ThemeProvider } from '../context/ThemeContext';
+import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
 
-const HomePage: React.FC = () => {
-  return (
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
-  );
+const Page$: React.FC = () => {
+  return <NotFoundPage />;
 };
 
-export default HomePage;
+export default Page$;
