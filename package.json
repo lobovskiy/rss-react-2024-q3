@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "remix dev",
+    "build": "remix build",
+    "start": "remix-serve build/index.js",
+    "typecheck": "tsc",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format:fix": "prettier . --write",
     "preview": "vite preview",
@@ -15,7 +17,11 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",
+    "@remix-run/node": "^2.11.1",
+    "@remix-run/react": "^2.11.1",
+    "@remix-run/serve": "^2.11.1",
     "file-saver": "^2.0.5",
+    "isbot": "^5.1.14",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^9.1.2",
@@ -24,6 +30,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
+    "@remix-run/dev": "^2.11.1",
     "@testing-library/dom": "^10.3.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",

@@ -24,5 +24,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "jest.config.ts", "jest.setup.ts"]
+  "include": ["src", "app", "remix.env.d.ts", "jest.config.ts", "jest.setup.ts"]
 }

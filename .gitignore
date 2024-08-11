@@ -10,6 +10,10 @@ dist-ssr
 *.local
 coverage/
 
+# Remix
+build
+public/build
+
 # Editor directories and files
 .DS_Store
 *.suo
