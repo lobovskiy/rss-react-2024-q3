@@ -54,7 +54,7 @@ const MainPage: React.FC<Props> = ({ data, cardData, PersonCard }) => {
   };
 
   const handleSetPage = (page: number) => {
-    const newSearchParams = new URLSearchParams();
+    const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('page', String(page));
     const queryParams = newSearchParams.toString();
 
