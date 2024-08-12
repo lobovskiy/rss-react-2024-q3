@@ -1,18 +1,29 @@
-import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  useRouter as useNavigationRouter,
+  useSearchParams,
+} from 'next/navigation';
+import { useRouter } from 'next/router';
 
-import { useGetPersonByIdQuery } from '../../services/apiService';
+import { Person } from '../../types';
+
+import useLoader from '../../hooks/useLoader';
 
 import styles from './Card.module.css';
 
-const Card: React.FC = () => {
+interface Props {
+  cardData: Person;
+}
+
+const Card: React.FC<Props> = ({ cardData: person }) => {
+  const navigationRouter = useNavigationRouter();
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamId = searchParams.get('details');
   const id = searchParamId ? parseInt(searchParamId, 10) : 0;
 
-  const { data: person, isFetching } = useGetPersonByIdQuery(id);
+  const { loading } = useLoader(router);
 
-  if (!isFetching && id === 0) {
+  if (!loading && id === 0) {
     return null;
   }
 
@@ -21,11 +32,11 @@ const Card: React.FC = () => {
     newSearchParams.delete('details');
     const queryParams = newSearchParams.toString();
 
-    router.push(`/?${queryParams}`);
+    navigationRouter.push(`/?${queryParams}`);
   };
 
   const renderPersonDetails = () => {
-    if (isFetching) {
+    if (loading) {
       return <div className={styles.card__details}>Loading...</div>;
     }
 

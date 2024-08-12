@@ -1,13 +1,23 @@
-export function removeEmptyParams(params: Record<string, unknown>) {
-  const notEmptyParams: Record<string, unknown> = {};
+export function buildUrl(baseUrl: string, page?: string, search?: string) {
+  let url = baseUrl;
 
-  Object.keys(params).forEach((key) => {
-    const value = params[key];
+  const params: Record<string, string> = {};
+  if (page) {
+    params.page = page;
+  }
 
-    if (value) {
-      notEmptyParams[key] = value;
-    }
-  });
+  if (search) {
+    params.search = search;
+  }
 
-  return notEmptyParams;
+  if (search) {
+    params.search = search;
+  }
+
+  const queryString = new URLSearchParams(params).toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+
+  return url;
 }
