@@ -1,4 +1,4 @@
-import './Pagination.css';
+import styles from './Pagination.module.css';
 
 interface Props {
   page: number;
@@ -15,10 +15,10 @@ const Pagination: React.FC<Props> = ({ page, count, progress, setPage }) => {
   ).map((i) => i + 1);
 
   return (
-    <div className="pagination" data-testid="pagination">
+    <div className={styles.pagination} data-testid="pagination">
       {pageNumbers.map((pageNumber) => (
         <button
-          className={`${pageNumber === page ? 'active' : undefined}`}
+          className={`${pageNumber === page ? styles.active : undefined}`}
           key={pageNumber}
           disabled={progress}
           onClick={() => {

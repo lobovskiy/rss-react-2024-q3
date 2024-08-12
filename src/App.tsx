@@ -1,27 +1,34 @@
-import { useContext } from 'react';
-import { Routes, Route } from 'react-router-dom';
+'use client';
 
+import dynamic from 'next/dynamic';
+import { Provider } from 'react-redux';
+
+import { PeopleResponse } from './services/types';
+
+import { store } from './redux/store';
+const ThemeProvider = dynamic(() => import('./context/ThemeContext'), {
+  ssr: false,
+});
+
+import MainPage from './pageComponents/MainPage/MainPage';
 import ErrorBoundary from './components/ErrorBoundary';
-import MainPage from './pages/MainPage/MainPage';
-import Card from './components/Card/Card';
-import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
-import './App.css';
-import { ThemeContext } from './context/ThemeContext';
+import { Person } from './types';
 
-const App: React.FC = () => {
-  const { theme } = useContext(ThemeContext);
+interface Props {
+  data: PeopleResponse;
+  cardData?: Person;
+  PersonCard?: React.ElementType<{ cardData?: Person }>;
+}
 
+const App: React.FC<Props> = ({ data, cardData, PersonCard }) => {
   return (
-    <ErrorBoundary>
-      <div className={`wrapper ${theme}-theme`} data-testid="app-wrapper">
-        <Routes>
-          <Route path="/" element={<MainPage />}>
-            <Route path="person" element={<Card />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
-    </ErrorBoundary>
+    <ThemeProvider>
+      <Provider store={store}>
+        <ErrorBoundary>
+          <MainPage data={data} cardData={cardData} PersonCard={PersonCard} />
+        </ErrorBoundary>
+      </Provider>
+    </ThemeProvider>
   );
 };
 

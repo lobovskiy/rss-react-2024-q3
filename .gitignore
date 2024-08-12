@@ -5,6 +5,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+.next
+next-env.d.ts
 dist
 dist-ssr
 *.local

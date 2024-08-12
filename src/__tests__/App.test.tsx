@@ -1,88 +1,64 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import * as React from 'react';
 
-import ErrorBoundary from '../components/ErrorBoundary';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import App from '../App';
-import { Theme, ThemeContext, ThemeProvider } from '../context/ThemeContext';
-import { store } from '../redux/store';
-import { Provider } from 'react-redux';
+import Card from '../components/Card/Card';
+import { peopleMock, personMock } from '../__mocks__/people';
+import { Person } from '../types';
 
-const renderWithRouter = (ui: React.ReactElement, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route);
-  return render(ui, { wrapper: BrowserRouter });
-};
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+}));
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+jest.mock('../hooks/useSearchTerm', () => jest.fn(() => ['test', jest.fn()]));
+jest.mock('../hooks/useLoader', () => jest.fn(() => ({ loading: false })));
+
+jest.mock('../components/Card/Card', () => {
+  return function CardMock() {
+    return <div>Card Component</div>;
+  };
+});
 
 describe('App', () => {
-  test('should render the main page by default', () => {
-    renderWithRouter(
-      <Provider store={store}>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </Provider>
-    );
+  const pushMock = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue(null),
+    });
+  });
+
+  const renderComponent = async (
+    PersonCard?: React.ElementType<{ cardData?: Person }>
+  ) => {
+    await waitFor(() => {
+      render(
+        <App
+          data={{ count: 82, results: peopleMock }}
+          cardData={personMock}
+          PersonCard={PersonCard}
+        />
+      );
+    });
+  };
+
+  test('should render the main page by default', async () => {
+    await renderComponent();
 
     expect(screen.getByText('Select theme:')).toBeInTheDocument();
   });
 
-  test('should render the Card component when navigating to /person', () => {
-    renderWithRouter(
-      <Provider store={store}>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
-      </Provider>,
-      { route: '/person' }
-    );
+  test('should render the Card component with person card component', async () => {
+    await renderComponent(Card);
 
-    expect(screen.getByText('Chosen person')).toBeInTheDocument();
-  });
-
-  test('should render the not found page for an unknown route', () => {
-    renderWithRouter(
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>,
-      { route: '/unknown' }
-    );
-
-    expect(screen.getByText('Page not found')).toBeInTheDocument();
-  });
-
-  test('should apply the correct theme', () => {
-    const customThemeContext = {
-      theme: 'dark' as Theme,
-      setTheme: jest.fn(),
-    };
-
-    renderWithRouter(
-      <Provider store={store}>
-        <ThemeContext.Provider value={customThemeContext}>
-          <App />
-        </ThemeContext.Provider>
-      </Provider>
-    );
-
-    expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
-  });
-
-  test('should display error boundary fallback UI when an error is thrown', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {
-      console.log('error');
-    });
-
-    const ProblematicComponent = () => {
-      throw new Error('Test error');
-    };
-
-    renderWithRouter(
-      <ThemeProvider>
-        <ErrorBoundary>
-          <ProblematicComponent />
-        </ErrorBoundary>
-      </ThemeProvider>
-    );
-
-    expect(screen.getByText('Something went wrong.')).toBeInTheDocument();
+    expect(screen.getByText('Card Component')).toBeInTheDocument();
   });
 });

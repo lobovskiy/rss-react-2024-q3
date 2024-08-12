@@ -1,51 +1,72 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 
+import { useRouter, useSearchParams } from 'next/navigation';
+
+import useLoader from '../hooks/useLoader';
 import Card from '../components/Card/Card';
 
-import * as apiService from '../services/apiService';
+import { Person } from '../types';
 
 import { personMock } from '../__mocks__/people';
 
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+}));
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
+
+jest.mock('../hooks/useSearchTerm', () => jest.fn(() => ['test', jest.fn()]));
+jest.mock('../hooks/useLoader', () => jest.fn(() => ({ loading: false })));
+
 describe('Card', () => {
-  const renderComponent = (path: string) => {
-    render(
-      <MemoryRouter initialEntries={[path]}>
-        <Card />
-      </MemoryRouter>
-    );
+  const pushMock = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
+  });
+
+  const renderComponent = (cardData?: Person) => {
+    const { container } = render(<Card cardData={cardData} />);
+
+    return container;
   };
 
-  const useGetPersonByIdQueryMock = jest.spyOn(
-    apiService,
-    'useGetPersonByIdQuery'
-  ) as jest.Mock;
-
-  it('shows loading indicator while data is not loaded', () => {
-    useGetPersonByIdQueryMock.mockReturnValue({
-      data: null,
-      isLoading: true,
+  it('does not show details if there is no person', () => {
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue('1'),
     });
 
-    renderComponent('/person?details=1');
+    renderComponent();
 
-    const cardDetailsTitle = screen.getByText('Loading...');
+    let cardNotFound = false;
 
-    expect(cardDetailsTitle).toBeInTheDocument();
+    try {
+      screen.getByTestId('card-details');
+    } catch (e) {
+      cardNotFound = true;
+    }
+
+    expect(cardNotFound).toBeTruthy();
   });
 
   it('shows person details correctly when data is loaded', () => {
-    useGetPersonByIdQueryMock.mockReturnValue({
-      data: personMock,
-      isLoading: false,
+    (useLoader as jest.Mock).mockReturnValue({ loading: false });
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: jest.fn().mockReturnValue('1'),
     });
 
-    renderComponent('/person?details=1');
+    renderComponent(personMock);
 
-    const cardDetailSkinColor = screen.getByText(
+    const cardDetails = screen.getByTestId('card-details');
+
+    expect(cardDetails).toBeInTheDocument();
+    expect(cardDetails).toHaveTextContent(`Name: ${personMock.name}`);
+    expect(cardDetails).toHaveTextContent(`Gender: ${personMock.gender}`);
+    expect(cardDetails).toHaveTextContent(
       `Skin color: ${personMock.skin_color}`
     );
-
-    expect(cardDetailSkinColor).toBeInTheDocument();
   });
 });

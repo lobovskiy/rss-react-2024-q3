@@ -21,3 +21,23 @@ body {
   align-items: flex-start;
   height: 100vh;
 }
+
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+#root:has(.dark-theme) {
+  background-color: #004444;
+}
+
+.dark-theme {
+  button {
+    color: #fff;
+    background-color: #333333;
+  }
+}
+
+.card {
+  padding: 2em;
+}
