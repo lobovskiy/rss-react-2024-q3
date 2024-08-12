@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useState } from 'react';
 import { LS_KEYS } from '../constants';
 
@@ -10,8 +12,8 @@ interface Props {
 
 const ThemeContext = createContext<Props>({
   theme: 'light',
-  setTheme: (theme: Theme) => {
-    console.log(`${theme} theme is set`);
+  setTheme: () => {
+    return;
   },
 });
 
@@ -33,4 +35,5 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export { ThemeProvider, ThemeContext };
+export { ThemeContext };
+export default ThemeProvider;

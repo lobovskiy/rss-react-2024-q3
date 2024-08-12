@@ -1,98 +1,105 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
+import {
+  useRouter as useNavigationRouter,
+  useSearchParams,
+} from 'next/navigation';
+import { useRouter } from 'next/router';
+import { ThemeContext } from '../context/ThemeContext';
+import MainPage from '../pageComponents/MainPage/MainPage';
+import { PeopleResponse } from '../services/types';
+import * as React from 'react';
 
-import MainPage from '../pages/MainPage/MainPage';
-import Card from '../components/Card/Card';
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+  useNavigationRouter: jest.fn(),
+}));
 
-import { store } from '../redux/store';
-import * as apiService from '../services/apiService';
+jest.mock('next/router', () => ({
+  useRouter: jest.fn(),
+}));
 
-import { peopleMock } from '../__mocks__/people';
+jest.mock('../hooks/useSearchTerm', () => jest.fn(() => ['test', jest.fn()]));
+jest.mock('../hooks/useLoader', () => jest.fn(() => ({ loading: false })));
 
-describe('Main page', () => {
-  const user = userEvent.setup();
+jest.mock('../components/ThemeSelector/ThemeSelector', () =>
+  jest.fn(() => <div data-testid="theme-selector" />)
+);
+jest.mock('../components/CardList/CardList', () =>
+  jest.fn(() => <div data-testid="card-list" />)
+);
 
-  const renderComponent = (path: string) => {
-    render(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={[path]}>
-          <Routes>
-            <Route path="/" element={<MainPage />}>
-              <Route path="person" element={<Card />} />
-            </Route>
-          </Routes>
-        </MemoryRouter>
-      </Provider>
-    );
+describe('MainPage', () => {
+  const mockData: PeopleResponse = {
+    results: [],
+    count: 1,
   };
 
-  const useGetPeopleQueryMock = jest.spyOn(
-    apiService,
-    'useGetPeopleQuery'
-  ) as jest.Mock;
-  const useGetPersonByIdQueryMock = jest.spyOn(
-    apiService,
-    'useGetPersonByIdQuery'
-  ) as jest.Mock;
+  const mockPush = jest.fn();
 
-  it('opens a detailed card component after click on people list item and calls API', async () => {
-    useGetPeopleQueryMock.mockReturnValue({
-      data: { count: 82, results: peopleMock },
-      isLoading: false,
+  beforeEach(() => {
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+      query: {},
     });
 
-    renderComponent('/');
+    (useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams());
 
-    const cardElements = screen.getAllByTestId('card-list-item');
-    const firstCardElement = cardElements[0];
-
-    await user.click(firstCardElement);
-
-    expect(screen.getByText('Chosen person')).toBeInTheDocument();
-    expect(useGetPersonByIdQueryMock).toHaveBeenLastCalledWith(1);
+    (useNavigationRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+    });
   });
 
-  it('closes a detailed card component after click on close icon', async () => {
-    renderComponent('/person?details=1');
-
-    const cardDetailsCloseButton = screen.getByTestId(
-      'card-details-close-button'
-    );
-
-    await user.click(cardDetailsCloseButton);
-
-    let cardDetailsNotFound = false;
-
-    await screen
-      .findByText('Chosen person')
-      .catch(() => (cardDetailsNotFound = true));
-
-    expect(cardDetailsNotFound).toBeTruthy();
-  });
-
-  it('updates URL query parameter when page changes', async () => {
-    const getPageParam = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get('page');
-    };
-
+  it('renders MainPage component with all sub-components', () => {
     render(
-      <Provider store={store}>
-        <BrowserRouter>
-          <MainPage />
-        </BrowserRouter>
-      </Provider>
+      <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
+        <MainPage data={mockData} />
+      </ThemeContext.Provider>
     );
 
-    const pagination = screen.getByTestId('pagination');
-    const pageButtons = pagination.getElementsByTagName('button');
+    expect(screen.getByTestId('app-wrapper')).toBeInTheDocument();
+    expect(screen.getByTestId('search-input')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-selector')).toBeInTheDocument();
+    expect(screen.getByTestId('card-list')).toBeInTheDocument();
+    expect(screen.getByTestId('pagination')).toBeInTheDocument();
+  });
 
-    await user.click(pageButtons[2 - 1]);
+  it('handles search term change and navigation correctly', () => {
+    render(
+      <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
+        <MainPage data={mockData} />
+      </ThemeContext.Provider>
+    );
 
-    const page = getPageParam();
+    const searchComponent = screen.getByTestId('search-input');
+    fireEvent.change(searchComponent, { target: { value: 'Luke' } });
 
-    expect(page).toBe('2');
+    fireEvent.click(screen.getByTestId('search-button'));
+    expect(mockPush).toHaveBeenCalledWith('/?search=Luke');
+  });
+
+  it('handles page change correctly', () => {
+    render(
+      <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
+        <MainPage data={mockData} />
+      </ThemeContext.Provider>
+    );
+
+    const paginationComponent = screen.getByTestId('pagination');
+    const paginationButtons =
+      paginationComponent.getElementsByTagName('button')[0];
+    fireEvent.click(paginationButtons);
+
+    expect(mockPush).toHaveBeenCalledWith('/?page=1');
+  });
+
+  test('should apply the correct theme', () => {
+    render(
+      <ThemeContext.Provider value={{ theme: 'dark', setTheme: jest.fn() }}>
+        <MainPage data={mockData} />
+      </ThemeContext.Provider>
+    );
+
+    expect(screen.getByTestId('app-wrapper')).toHaveClass('dark-theme');
   });
 });

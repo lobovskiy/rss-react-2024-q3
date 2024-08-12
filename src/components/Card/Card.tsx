@@ -1,19 +1,29 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useRouter as useNavigationRouter,
+  useSearchParams,
+} from 'next/navigation';
+import { useRouter } from 'next/router';
 
-import { useGetPersonByIdQuery } from '../../services/apiService';
+import { Person } from '../../types';
 
-import './Card.css';
+import useLoader from '../../hooks/useLoader';
 
-const Card: React.FC = () => {
-  const [searchParams] = useSearchParams();
+import styles from './Card.module.css';
+
+interface Props {
+  cardData?: Person;
+}
+
+const Card: React.FC<Props> = ({ cardData: person }) => {
+  const navigationRouter = useNavigationRouter();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const searchParamId = searchParams.get('details');
   const id = searchParamId ? parseInt(searchParamId, 10) : 0;
 
-  const { data: person, isLoading } = useGetPersonByIdQuery(id);
+  const { loading } = useLoader(router);
 
-  const navigate = useNavigate();
-
-  if (!isLoading && id === 0) {
+  if (!loading && id === 0) {
     return null;
   }
 
@@ -22,12 +32,12 @@ const Card: React.FC = () => {
     newSearchParams.delete('details');
     const queryParams = newSearchParams.toString();
 
-    navigate(`/?${queryParams}`);
+    navigationRouter.push(`/?${queryParams}`);
   };
 
   const renderPersonDetails = () => {
-    if (isLoading) {
-      return <div className="card__details">Loading...</div>;
+    if (loading) {
+      return <div className={styles.card__details}>Loading...</div>;
     }
 
     if (!person) {
@@ -45,7 +55,7 @@ const Card: React.FC = () => {
     } = person;
 
     return (
-      <div className="card__details">
+      <div className={styles.card__details} data-testid="card-details">
         <div>Name: {name}</div>
         <div>Gender: {gender}</div>
         <div>Height: {height}</div>
@@ -58,11 +68,11 @@ const Card: React.FC = () => {
   };
 
   return (
-    <div className="card">
+    <div className={styles.card}>
       <h1>Chosen person</h1>
       {renderPersonDetails()}
       <button
-        className="close"
+        className={styles.close}
         onClick={handleClickClose}
         data-testid="card-details-close-button"
       ></button>
