@@ -26,7 +26,7 @@ import useLoader from '../../hooks/useLoader';
 interface Props {
   data: PeopleResponse;
   cardData?: Person;
-  PersonCard?: React.ElementType<{ cardData: Person }>;
+  PersonCard?: React.ElementType<{ cardData?: Person }>;
 }
 
 const MainPage: React.FC<Props> = ({ data, cardData, PersonCard }) => {

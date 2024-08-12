@@ -17,7 +17,7 @@ import { Person } from './types';
 interface Props {
   data: PeopleResponse;
   cardData?: Person;
-  PersonCard?: React.ElementType<{ cardData: Person }>;
+  PersonCard?: React.ElementType<{ cardData?: Person }>;
 }
 
 const App: React.FC<Props> = ({ data, cardData, PersonCard }) => {

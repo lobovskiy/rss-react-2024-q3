@@ -11,7 +11,7 @@ import useLoader from '../../hooks/useLoader';
 import styles from './Card.module.css';
 
 interface Props {
-  cardData: Person;
+  cardData?: Person;
 }
 
 const Card: React.FC<Props> = ({ cardData: person }) => {
