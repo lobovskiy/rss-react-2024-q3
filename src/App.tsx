@@ -1,32 +1,34 @@
-import { useContext } from 'react';
+'use client';
+
+import dynamic from 'next/dynamic';
 import { Provider } from 'react-redux';
 
+import { PeopleResponse } from './services/types';
+
 import { store } from './redux/store';
-import { ThemeContext } from './context/ThemeContext';
+const ThemeProvider = dynamic(() => import('./context/ThemeContext'), {
+  ssr: false,
+});
 
 import MainPage from './pageComponents/MainPage/MainPage';
 import ErrorBoundary from './components/ErrorBoundary';
-
-import styles from './App.module.css';
+import { Person } from './types';
 
 interface Props {
-  PersonCard?: React.ElementType;
+  data: PeopleResponse;
+  cardData?: Person;
+  PersonCard?: React.ElementType<{ cardData?: Person }>;
 }
 
-const App: React.FC<Props> = ({ PersonCard }) => {
-  const { theme } = useContext(ThemeContext);
-
+const App: React.FC<Props> = ({ data, cardData, PersonCard }) => {
   return (
-    <Provider store={store}>
-      <ErrorBoundary>
-        <div
-          className={`${styles.wrapper} ${theme}-theme`}
-          data-testid="app-wrapper"
-        >
-          <MainPage PersonCard={PersonCard} />
-        </div>
-      </ErrorBoundary>
-    </Provider>
+    <ThemeProvider>
+      <Provider store={store}>
+        <ErrorBoundary>
+          <MainPage data={data} cardData={cardData} PersonCard={PersonCard} />
+        </ErrorBoundary>
+      </Provider>
+    </ThemeProvider>
   );
 };
 

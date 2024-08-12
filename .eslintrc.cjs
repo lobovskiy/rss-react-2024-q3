@@ -26,6 +26,7 @@ module.exports = {
     'react-compiler/react-compiler': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+    '@typescript-eslint/consistent-indexed-object-style': 'off',
     "react/prop-types": "off",
   },
 };

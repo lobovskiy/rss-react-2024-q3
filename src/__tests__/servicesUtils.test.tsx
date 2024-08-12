@@ -1,54 +1,45 @@
-import { removeEmptyParams } from '../services/utils';
+import { buildUrl } from '../services/utils';
 
-describe('removeEmptyParams', () => {
-  test('should remove keys with empty values', () => {
-    const input = {
-      key1: 'value1',
-      key2: '',
-      key3: null,
-      key4: undefined,
-      key5: 0,
-      key6: false,
-      key7: 'value2',
-    };
-    const expectedOutput = {
-      key1: 'value1',
-      key7: 'value2',
-    };
+describe('buildUrl', () => {
+  const baseUrl = 'https://swapi.dev/api/people';
 
-    expect(removeEmptyParams(input)).toEqual(expectedOutput);
+  it('should return the base URL when no page and search parameters are provided', () => {
+    const result = buildUrl(baseUrl);
+    expect(result).toBe(baseUrl);
   });
 
-  test('should return the same object if no keys have empty values', () => {
-    const input = {
-      key1: 'value1',
-      key2: 'value2',
-    };
-    const expectedOutput = {
-      key1: 'value1',
-      key2: 'value2',
-    };
-
-    expect(removeEmptyParams(input)).toEqual(expectedOutput);
+  it('should return the URL with the page parameter when only page is provided', () => {
+    const result = buildUrl(baseUrl, '2');
+    expect(result).toBe(`${baseUrl}?page=2`);
   });
 
-  test('should return an empty object if all keys have empty values', () => {
-    const input = {
-      key1: '',
-      key2: null,
-      key3: undefined,
-      key4: 0,
-      key5: false,
-    };
-    const expectedOutput = {};
-
-    expect(removeEmptyParams(input)).toEqual(expectedOutput);
+  it('should return the URL with the search parameter when only search is provided', () => {
+    const result = buildUrl(baseUrl, undefined, 'Luke');
+    expect(result).toBe(`${baseUrl}?search=Luke`);
   });
 
-  test('should return an empty object if the input object is empty', () => {
-    const input = {};
-    const expectedOutput = {};
+  it('should return the URL with both page and search parameters when both are provided', () => {
+    const result = buildUrl(baseUrl, '2', 'Luke');
+    expect(result).toBe(`${baseUrl}?page=2&search=Luke`);
+  });
 
-    expect(removeEmptyParams(input)).toEqual(expectedOutput);
+  it('should return the URL with only the page parameter if search is an empty string', () => {
+    const result = buildUrl(baseUrl, '2', '');
+    expect(result).toBe(`${baseUrl}?page=2`);
+  });
+
+  it('should return the URL with only the search parameter if page is an empty string', () => {
+    const result = buildUrl(baseUrl, '', 'Luke');
+    expect(result).toBe(`${baseUrl}?search=Luke`);
+  });
+
+  it('should return the base URL if both page and search are empty strings', () => {
+    const result = buildUrl(baseUrl, '', '');
+    expect(result).toBe(baseUrl);
+  });
+
+  it('should not duplicate the search parameter', () => {
+    const result = buildUrl(baseUrl, '2', 'Leia');
+    expect(result).toBe(`${baseUrl}?page=2&search=Leia`);
   });
 });

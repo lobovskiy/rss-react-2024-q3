@@ -20,6 +20,9 @@ body {
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+}
+
+#root {
   margin: 0 auto;
   text-align: center;
 }

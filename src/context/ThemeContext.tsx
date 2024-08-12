@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useState } from 'react';
 import { LS_KEYS } from '../constants';
 
