@@ -1,90 +1,90 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useGetPeopleQuery } from '../services/apiService';
-import useSearchTerm from '../hooks/useSearchTerm';
+import { useNavigation, useSearchParams } from '@remix-run/react';
+import { Theme, ThemeContext } from '../context/ThemeContext';
 import MainPage from '../pages/MainPage/MainPage';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
-import { peopleMock } from '../__mocks__/people';
+import { PeopleResponse } from '../services/types';
+import useSearchTerm from '../hooks/useSearchTerm';
+import { Person } from '../types';
+import { personMock } from '../__mocks__/people';
 
-jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn(),
+jest.mock('@remix-run/react', () => ({
+  useNavigation: jest.fn(),
   useSearchParams: jest.fn(),
-}));
-
-jest.mock('../services/apiService', () => ({
-  useGetPeopleQuery: jest.fn(),
 }));
 
 jest.mock('../hooks/useSearchTerm', () => jest.fn());
 
-const mockStore = configureStore([]);
-const store = mockStore({
-  selectedPeople: { ids: ['1', '2', '3'] },
-});
+jest.mock('../components/ThemeSelector/ThemeSelector', () =>
+  jest.fn(() => <div data-testid="theme-selector" />)
+);
+jest.mock('../components/CardList/CardList', () =>
+  jest.fn(() => <div data-testid="card-list" />)
+);
 
-describe('MainPage Component', () => {
-  const mockNavigate = jest.fn();
+describe('MainPage', () => {
+  const mockData: PeopleResponse = {
+    results: [],
+    count: 1,
+  };
+
+  const mockCardData: Person = personMock;
+
   const mockSetSearchParams = jest.fn();
-  const mockUseGetPeopleQuery = useGetPeopleQuery as jest.Mock;
-  const mockUseSearchTerm = useSearchTerm as jest.Mock;
 
   beforeEach(() => {
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useSearchParams as jest.Mock).mockReturnValue([
-      new URLSearchParams(''),
+      new URLSearchParams(),
       mockSetSearchParams,
     ]);
-    mockUseSearchTerm.mockReturnValue(['', jest.fn()]);
-    mockUseGetPeopleQuery.mockReturnValue({
-      data: { results: [], count: 0 },
-      isFetching: false,
-    });
+    (useNavigation as jest.Mock).mockReturnValue({ state: 'idle' });
+    (useSearchTerm as jest.Mock).mockReturnValue(['', jest.fn()]);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  const renderMainPage = (
+    theme: Theme = 'light',
+    cardData?: Person,
+    PersonCard?: React.ElementType<{ cardData?: Person }>
+  ) => {
+    return render(
+      <ThemeContext.Provider value={{ theme, setTheme: jest.fn() }}>
+        <MainPage data={mockData} cardData={cardData} PersonCard={PersonCard} />
+      </ThemeContext.Provider>
+    );
+  };
+
+  it('renders MainPage component with light theme by default', () => {
+    renderMainPage();
+    const wrapper = screen.getByTestId('app-wrapper');
+    expect(wrapper).toHaveClass('light-theme');
+    expect(screen.getByTestId('search-form')).toBeInTheDocument();
+    expect(screen.getByTestId('theme-selector')).toBeInTheDocument();
   });
 
-  it('renders Search, CardList, Pagination, and ThemeSelector components', () => {
-    render(
-      <Provider store={store}>
-        <MainPage />
-      </Provider>
+  it('handles pagination navigation', () => {
+    renderMainPage();
+    const pagination = screen.getByTestId('pagination');
+    const paginationButtons = pagination.getElementsByTagName('button');
+    fireEvent.click(paginationButtons[0]);
+
+    expect(mockSetSearchParams).toHaveBeenCalledWith(
+      new URLSearchParams('page=1')
+    );
+  });
+
+  it('renders PersonCard component when provided', () => {
+    const MockPersonCard = ({ cardData }: { cardData?: Person }) => (
+      <div>PersonCard: {cardData?.name}</div>
     );
 
-    expect(screen.getByRole('textbox')).toBeInTheDocument();
-    expect(screen.getByText('There is no people found')).toBeInTheDocument();
+    renderMainPage('light', mockCardData, MockPersonCard);
+    expect(
+      screen.getByText(`PersonCard: ${personMock.name}`)
+    ).toBeInTheDocument();
   });
 
-  it('navigates to the correct page when handleSetPage is called', () => {
-    mockUseGetPeopleQuery.mockReturnValue({
-      data: { results: peopleMock, count: 82 },
-      isFetching: false,
-    });
-
-    render(
-      <Provider store={store}>
-        <MainPage />
-      </Provider>
-    );
-
-    const setPageButton = screen.getByText('2');
-
-    fireEvent.click(setPageButton);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/?page=2');
-  });
-
-  it('renders the PersonCard component if provided', () => {
-    const PersonCard = () => <div>PersonCard</div>;
-
-    render(
-      <Provider store={store}>
-        <MainPage PersonCard={PersonCard} />
-      </Provider>
-    );
-
-    expect(screen.getByText('PersonCard')).toBeInTheDocument();
+  it('throws and catches test error', () => {
+    renderMainPage();
+    const throwErrorButton = screen.getByText('Throw Error');
+    expect(() => fireEvent.click(throwErrorButton)).toThrow('Test error');
   });
 });

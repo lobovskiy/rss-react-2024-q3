@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import { ThemeProvider, ThemeContext } from '../context/ThemeContext';
+import ThemeProvider, { ThemeContext } from '../context/ThemeContext';
 
 describe('ThemeProvider', () => {
   beforeEach(() => {

@@ -1,32 +1,34 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigation, useSearchParams } from '@remix-run/react';
 
-import { useGetPersonByIdQuery } from '../../services/apiService';
+import { Person } from '../../types';
 
 import './Card.css';
 
-const Card: React.FC = () => {
-  const [searchParams] = useSearchParams();
+interface Props {
+  cardData?: Person;
+}
+
+const Card: React.FC<Props> = ({ cardData: person }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchParamId = searchParams.get('details');
+  const navigation = useNavigation();
   const id = searchParamId ? parseInt(searchParamId, 10) : 0;
 
-  const { data: person, isFetching } = useGetPersonByIdQuery(id);
+  const loading = navigation.state === 'loading';
 
-  const navigate = useNavigate();
-
-  if (!isFetching && id === 0) {
+  if (!loading && id === 0) {
     return null;
   }
 
   const handleClickClose = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete('details');
-    const queryParams = newSearchParams.toString();
 
-    navigate(`/?${queryParams}`);
+    setSearchParams(newSearchParams);
   };
 
   const renderPersonDetails = () => {
-    if (isFetching) {
+    if (loading) {
       return <div className="card__details">Loading...</div>;
     }
 
@@ -45,7 +47,7 @@ const Card: React.FC = () => {
     } = person;
 
     return (
-      <div className="card__details">
+      <div className="card__details" data-testid="card-details">
         <div>Name: {name}</div>
         <div>Gender: {gender}</div>
         <div>Height: {height}</div>

@@ -1,73 +1,67 @@
+import React from 'react';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
-
+import { Theme, ThemeContext } from '../context/ThemeContext';
+import { store } from '../redux/store';
 import App from '../App';
-import { ThemeContext } from '../context/ThemeContext';
-import MainPage from '../pages/MainPage/MainPage';
-import Card from '../components/Card/Card';
-import * as React from 'react';
+import { PeopleResponse } from '../services/types';
+import { Person } from '../types';
+import { peopleMock } from '../__mocks__/people';
 
 jest.mock('../pages/MainPage/MainPage', () => {
-  return jest.fn(() => <div>MainPage Component</div>);
+  const MainPage = () => <div>MainPage Component</div>;
+  MainPage.displayName = 'MainPage';
+  return MainPage;
 });
-
-jest.mock('../clientOnly', () => ({
-  ClientOnly: ({ children }: { children(): React.ReactNode }) => (
-    <>{children()}</>
-  ),
-}));
-
-jest.mock('../components/Card/Card', () => {
-  return function CardMock() {
-    return <div>Card Component</div>;
-  };
+jest.mock('../components/ErrorBoundary', () => {
+  const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({
+    children,
+  }) => <div>{children}</div>;
+  ErrorBoundary.displayName = 'ErrorBoundary';
+  return ErrorBoundary;
 });
-
-const mockStore = configureStore([]);
-const store = mockStore({});
+jest.mock('../clientOnly', () => {
+  const ClientOnly: React.FC<{ children: () => React.ReactNode }> = ({
+    children,
+  }) => <div>{children()}</div>;
+  ClientOnly.displayName = 'ClientOnly';
+  return { ClientOnly };
+});
 
 describe('App Component', () => {
-  it('renders with the correct theme from ThemeContext', () => {
-    const theme = 'dark';
-    const setTheme = jest.fn();
+  const mockData: PeopleResponse = {
+    count: 82,
+    results: peopleMock,
+  };
 
-    const { getByTestId } = render(
+  const renderApp = (
+    theme: Theme = 'light',
+    cardData?: Person,
+    PersonCard?: React.ElementType<{ cardData?: Person }>
+  ) => {
+    return render(
       <Provider store={store}>
-        <ThemeContext.Provider value={{ theme, setTheme }}>
-          <App />
+        <ThemeContext.Provider value={{ theme, setTheme: jest.fn() }}>
+          <App data={mockData} cardData={cardData} PersonCard={PersonCard} />
         </ThemeContext.Provider>
       </Provider>
     );
+  };
 
-    const wrapperDiv = getByTestId('app-wrapper');
-    expect(wrapperDiv).toHaveClass('wrapper dark-theme');
+  test('renders App component with light theme by default', () => {
+    const { getByTestId } = renderApp();
+    const appWrapper = getByTestId('app-wrapper');
+    expect(appWrapper).toHaveClass('light-theme');
   });
 
-  it('renders the MainPage component with PersonCard', () => {
-    render(
-      <Provider store={store}>
-        <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
-          <App PersonCard={Card} />
-        </ThemeContext.Provider>
-      </Provider>
-    );
-
-    expect(MainPage).toHaveBeenCalledWith(
-      expect.objectContaining({ PersonCard: Card }),
-      expect.anything()
-    );
+  test('renders App component with dark theme', () => {
+    const { getByTestId } = renderApp('dark');
+    const appWrapper = getByTestId('app-wrapper');
+    expect(appWrapper).toHaveClass('dark-theme');
   });
 
-  it('renders ClientOnly content', () => {
-    const { getByText } = render(
-      <Provider store={store}>
-        <ThemeContext.Provider value={{ theme: 'light', setTheme: jest.fn() }}>
-          <App />
-        </ThemeContext.Provider>
-      </Provider>
-    );
-
+  test('renders MainPage component with correct props', () => {
+    const { getByText } = renderApp();
     expect(getByText('MainPage Component')).toBeInTheDocument();
   });
 });

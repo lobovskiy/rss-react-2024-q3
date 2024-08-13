@@ -9,15 +9,18 @@ interface Props {
 
 const ThemeContext = createContext<Props>({
   theme: 'light',
-  setTheme: (theme: Theme) => {
-    console.log(`${theme} theme is set`);
+  setTheme: () => {
+    return;
   },
 });
 
 const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>('light');
+  const setTheme = (theme: Theme) => {
+    setThemeState(theme);
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
@@ -26,4 +29,5 @@ const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export { ThemeProvider, ThemeContext };
+export { ThemeContext };
+export default ThemeProvider;

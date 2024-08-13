@@ -1,10 +1,9 @@
 import { render, screen } from '@testing-library/react';
+import Page$ from '../routes/$';
 
-import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
-
-describe('NotFoundPage', () => {
+describe('Page$', () => {
   test('should render the not found message', () => {
-    render(<NotFoundPage />);
+    render(<Page$ />);
 
     expect(screen.getByText('Page not found')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(

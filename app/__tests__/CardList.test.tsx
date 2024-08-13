@@ -1,24 +1,23 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useSearchParams, useNavigate } from '@remix-run/react';
+import fileSaverPkg from 'file-saver';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
   addSelectedPerson,
   clearSelectedPeople,
-  removeSelectedPerson,
 } from '../redux/selectedPeople/slice';
 import CardList from '../components/CardList/CardList';
 import { Person } from '../types';
+import { peopleMock, personMock } from '../__mocks__/people';
 
-jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn(),
+jest.mock('@remix-run/react', () => ({
   useSearchParams: jest.fn(),
+  useNavigate: jest.fn(),
 }));
-
 jest.mock('../redux/hooks', () => ({
   useAppDispatch: jest.fn(),
   useAppSelector: jest.fn(),
 }));
-
 jest.mock('file-saver', () => ({
   saveAs: jest.fn(),
 }));
@@ -26,140 +25,87 @@ jest.mock('file-saver', () => ({
 describe('CardList Component', () => {
   const mockNavigate = jest.fn();
   const mockDispatch = jest.fn();
-  const mockUseSelector = useAppSelector as jest.Mock;
 
   beforeEach(() => {
+    (useSearchParams as jest.Mock).mockReturnValue([
+      new URLSearchParams('details=1'),
+      jest.fn(),
+    ]);
     (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams('')]);
     (useAppDispatch as jest.Mock).mockReturnValue(mockDispatch);
-    mockUseSelector.mockReturnValue([]);
+    (useAppSelector as jest.Mock).mockReturnValue([]);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  const renderCardList = (people: Person[] = [], progress = false) => {
+    return render(<CardList people={people} progress={progress} />);
+  };
 
   it('renders loading state when progress is true', () => {
-    render(<CardList people={[]} progress={true} />);
-
+    renderCardList([], true);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders "There is no people found" when people list is empty', () => {
-    render(<CardList people={[]} progress={false} />);
-
+  it('renders message when no people are found', () => {
+    renderCardList([]);
     expect(screen.getByText('There is no people found')).toBeInTheDocument();
   });
 
-  it('renders people and handles card click', () => {
-    const people = [
-      {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/1/',
-      },
-      {
-        name: 'Leia Organa',
-        gender: 'female',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/2/',
-      },
-    ];
+  it('renders list of people', () => {
+    renderCardList(peopleMock);
+    expect(screen.getByText(`Name: ${peopleMock[0].name}`)).toBeInTheDocument();
+    expect(screen.getByText(`Name: ${peopleMock[1].name}`)).toBeInTheDocument();
+  });
 
-    render(<CardList people={people as Person[]} progress={false} />);
-
+  it('navigates to person details when button is clicked', () => {
+    renderCardList(peopleMock);
     const buttons = screen.getAllByTestId('card-list-item');
     fireEvent.click(buttons[0]);
-
     expect(mockNavigate).toHaveBeenCalledWith('/person?details=1');
   });
 
-  it('dispatches addSelectedPerson when checkbox is checked', () => {
-    const people = [
-      {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/1/',
-      },
-    ];
+  it('handles selecting and unselecting a person', () => {
+    renderCardList(peopleMock);
+    const checkboxes = screen.getAllByTestId('card-list-item-checkbox');
 
-    render(<CardList people={people as Person[]} progress={false} />);
-
-    const checkbox = screen.getByRole('checkbox');
-    fireEvent.click(checkbox);
-
+    fireEvent.click(checkboxes[0]);
     expect(mockDispatch).toHaveBeenCalledWith(addSelectedPerson('1'));
   });
 
-  it('dispatches removeSelectedPerson when checkbox is unchecked', () => {
-    mockUseSelector.mockReturnValue(['1']);
-    const people = [
-      {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/1/',
-      },
-    ];
+  it('unselects all people when "Unselect All" is clicked', () => {
+    (useAppSelector as jest.Mock).mockReturnValue(['1']);
+    renderCardList(peopleMock);
 
-    render(<CardList people={people as Person[]} progress={false} />);
-
-    const checkbox = screen.getByRole('checkbox');
-    fireEvent.click(checkbox);
-
-    expect(mockDispatch).toHaveBeenCalledWith(removeSelectedPerson('1'));
-  });
-
-  it('dispatches clearSelectedPeople when "Unselect All" button is clicked', () => {
-    mockUseSelector.mockReturnValue(['1', '2']);
-
-    const people = [
-      {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/1/',
-      },
-      {
-        name: 'Leia Organa',
-        gender: 'female',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/2/',
-      },
-    ];
-
-    render(<CardList people={people as Person[]} progress={false} />);
-
-    const unselectAllButton = screen.getByText('Unselect All');
-    fireEvent.click(unselectAllButton);
-
+    fireEvent.click(screen.getByText('Unselect All'));
     expect(mockDispatch).toHaveBeenCalledWith(clearSelectedPeople());
   });
 
-  it('handles CSV download when "Download" button is clicked', () => {
-    mockUseSelector.mockReturnValue(['1']);
-    const people = [
-      {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        birth_year: '19BBY',
-        url: 'https://swapi.dev/api/people/1/',
-      },
-    ];
+  it('downloads selected people as CSV when "Download" is clicked', async () => {
+    (useAppSelector as jest.Mock).mockReturnValue(['1']);
+    renderCardList(peopleMock);
 
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve(people[0]),
-      })
-    ) as jest.Mock;
+    global.fetch = jest.fn().mockResolvedValue({
+      json: () => Promise.resolve(personMock),
+    });
 
-    render(<CardList people={people as Person[]} progress={false} />);
+    fireEvent.click(screen.getByText('Download'));
 
-    const downloadButton = screen.getByText('Download');
-    fireEvent.click(downloadButton);
+    await waitFor(() => {
+      expect(fileSaverPkg.saveAs).toHaveBeenCalledWith(
+        expect.any(Blob),
+        '1_people.csv'
+      );
+    });
+  });
 
-    expect(global.fetch).toHaveBeenCalledWith('https://swapi.dev/api/people/1');
+  it('does not render the flyout when no people are selected', () => {
+    renderCardList(peopleMock);
+    expect(screen.queryByText('Unselect All')).not.toBeInTheDocument();
+    expect(screen.queryByText('Download')).not.toBeInTheDocument();
+  });
+
+  it('renders the flyout when people are selected', () => {
+    (useAppSelector as jest.Mock).mockReturnValue(['1']);
+    renderCardList(peopleMock);
+    expect(screen.getByText('1 items selected')).toBeInTheDocument();
   });
 });

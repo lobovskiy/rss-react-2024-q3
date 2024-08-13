@@ -1,6 +1,6 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import fsPkg from 'file-saver';
-const { saveAs } = fsPkg;
+import { useSearchParams, useNavigate } from '@remix-run/react';
+import fileSaverPkg from 'file-saver';
+const { saveAs } = fileSaverPkg;
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
@@ -19,8 +19,8 @@ interface Props {
 }
 
 const CardList: React.FC<Props> = ({ people, progress }) => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const dispatch = useAppDispatch();
   const selectedPeople = useAppSelector((state) => state.selectedPeople.ids);
@@ -107,6 +107,7 @@ const CardList: React.FC<Props> = ({ people, progress }) => {
               onChange={(event) => {
                 setSelectedPerson(id, event.target.checked);
               }}
+              data-testid="card-list-item-checkbox"
             />
             <button
               onClick={() => {

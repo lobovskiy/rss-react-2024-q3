@@ -1,111 +1,72 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useGetPersonByIdQuery } from '../services/apiService';
-
+import { useNavigation, useSearchParams } from '@remix-run/react';
 import Card from '../components/Card/Card';
+import { Person } from '../types';
+import { personMock } from '../__mocks__/people';
 
-jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn(),
+jest.mock('@remix-run/react', () => ({
+  useNavigation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('../services/apiService', () => ({
-  useGetPersonByIdQuery: jest.fn(),
-}));
-
 describe('Card Component', () => {
-  const mockNavigate = jest.fn();
+  const mockSetSearchParams = jest.fn();
+
+  const mockPerson: Person = personMock;
 
   beforeEach(() => {
-    (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useSearchParams as jest.Mock).mockReturnValue([
       new URLSearchParams('details=1'),
+      mockSetSearchParams,
     ]);
+    (useNavigation as jest.Mock).mockReturnValue({ state: 'idle' });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  const renderCard = (person?: Person) => {
+    return render(<Card cardData={person} />);
+  };
+
+  it('renders Card component with person details', () => {
+    renderCard(mockPerson);
+
+    expect(screen.getByText(`Name: ${personMock.name}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`Gender: ${personMock.gender}`)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`Height: ${personMock.height}`)
+    ).toBeInTheDocument();
   });
 
-  it('renders "Loading..." when data is fetching', () => {
-    (useGetPersonByIdQuery as jest.Mock).mockReturnValue({
-      data: null,
-      isFetching: true,
-    });
-
-    render(<Card />);
-
+  it('renders loading state when navigation is in progress', () => {
+    (useNavigation as jest.Mock).mockReturnValue({ state: 'loading' });
+    renderCard();
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
-  it('renders person details when data is available', () => {
-    (useGetPersonByIdQuery as jest.Mock).mockReturnValue({
-      data: {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        height: '172',
-        skin_color: 'fair',
-        birth_year: '19BBY',
-        eye_color: 'blue',
-        hair_color: 'blond',
-      },
-      isFetching: false,
-    });
-
-    render(<Card />);
-
-    expect(screen.getByText('Name: Luke Skywalker')).toBeInTheDocument();
-    expect(screen.getByText('Gender: male')).toBeInTheDocument();
-    expect(screen.getByText('Height: 172')).toBeInTheDocument();
-    expect(screen.getByText('Skin color: fair')).toBeInTheDocument();
-    expect(screen.getByText('Birth year: 19BBY')).toBeInTheDocument();
-    expect(screen.getByText('Eye color: blue')).toBeInTheDocument();
-    expect(screen.getByText('Hair color: blond')).toBeInTheDocument();
-  });
-
-  it('renders nothing if id is 0 and not fetching', () => {
-    (useSearchParams as jest.Mock).mockReturnValue([new URLSearchParams()]);
-    (useGetPersonByIdQuery as jest.Mock).mockReturnValue({
-      data: null,
-      isFetching: false,
-    });
-
-    const { container } = render(<Card />);
-
+  it('does not render Card component if no details are selected and not loading', () => {
+    (useSearchParams as jest.Mock).mockReturnValue([
+      new URLSearchParams(),
+      mockSetSearchParams,
+    ]);
+    const { container } = renderCard();
     expect(container.firstChild).toBeNull();
   });
 
-  it('navigates to the home page when the close button is clicked', () => {
-    (useGetPersonByIdQuery as jest.Mock).mockReturnValue({
-      data: {
-        name: 'Luke Skywalker',
-        gender: 'male',
-        height: '172',
-        skin_color: 'fair',
-        birth_year: '19BBY',
-        eye_color: 'blue',
-        hair_color: 'blond',
-      },
-      isFetching: false,
-    });
-
-    render(<Card />);
-
-    const closeButton = screen.getByTestId('card-details-close-button');
-    fireEvent.click(closeButton);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/?');
+  it('renders "Chosen person" title', () => {
+    renderCard(mockPerson);
+    expect(screen.getByText('Chosen person')).toBeInTheDocument();
   });
 
-  it('renders nothing when there is no person data and not fetching', () => {
-    (useGetPersonByIdQuery as jest.Mock).mockReturnValue({
-      data: null,
-      isFetching: false,
-    });
+  it('closes the card and removes details from searchParams on close button click', () => {
+    renderCard(mockPerson);
+    const closeButton = screen.getByTestId('card-details-close-button');
+    fireEvent.click(closeButton);
+    expect(mockSetSearchParams).toHaveBeenCalledWith(new URLSearchParams());
+  });
 
-    render(<Card />);
-
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
-    expect(screen.queryByText('Name:')).not.toBeInTheDocument();
+  it('does not render person details if person data is not provided', () => {
+    renderCard();
+    expect(screen.queryByTestId('card-details')).not.toBeInTheDocument();
   });
 });

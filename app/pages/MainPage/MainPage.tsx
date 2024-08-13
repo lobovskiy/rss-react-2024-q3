@@ -1,47 +1,51 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { useNavigation, useSearchParams } from '@remix-run/react';
 
-import { useGetPeopleQuery } from '../../services/apiService';
+import { PeopleResponse } from '../../services/types';
+import { Person } from '../../types';
+
 import useSearchTerm from '../../hooks/useSearchTerm';
+import { ThemeContext } from '../../context/ThemeContext';
 
+import ThemeSelector from '../../components/ThemeSelector/ThemeSelector';
 import Search from '../../components/Search';
 import CardList from '../../components/CardList/CardList';
 import Pagination from '../../components/Pagination/Pagination';
 import { LS_KEYS } from '../../constants';
 
 import './MainPage.css';
-import ThemeSelector from '../../components/ThemeSelector/ThemeSelector';
 
 interface Props {
-  PersonCard?: React.ElementType;
+  data: PeopleResponse;
+  cardData?: Person;
+  PersonCard?: React.ElementType<{ cardData?: Person }>;
 }
 
-const MainPage: React.FC<Props> = ({ PersonCard }) => {
-  const navigate = useNavigate();
+const MainPage: React.FC<Props> = ({ data, cardData, PersonCard }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useSearchTerm(
-    LS_KEYS.SearchQuery,
-    localStorage.getItem(LS_KEYS.SearchQuery) ?? undefined
-  );
+  const navigation = useNavigation();
+  const [searchTerm, setSearchTerm] = useSearchTerm(LS_KEYS.SearchQuery);
   const [testError, setTestError] = useState<boolean>(false);
+  const { theme } = useContext(ThemeContext);
 
   const searchParamPage = searchParams.get('page');
   const page = searchParamPage ? parseInt(searchParamPage, 10) : undefined;
 
-  const { data, isFetching } = useGetPeopleQuery({ page, search: searchTerm });
-
   const handleSearch = (searchTerm: string) => {
-    setSearchParams();
+    const newSearchParams = new URLSearchParams();
+    searchTerm
+      ? newSearchParams.set('search', String(searchTerm))
+      : newSearchParams.delete('search');
+
     setSearchTerm(searchTerm);
-    navigate('/');
+    setSearchParams(newSearchParams);
   };
 
   const handleSetPage = (page: number) => {
-    const newSearchParams = new URLSearchParams();
+    const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('page', String(page));
-    const queryParams = newSearchParams.toString();
 
-    navigate(`/?${queryParams}`);
+    setSearchParams(newSearchParams);
   };
 
   const handleClickSection = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -57,9 +61,8 @@ const MainPage: React.FC<Props> = ({ PersonCard }) => {
     ) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.delete('details');
-      const queryParams = newSearchParams.toString();
 
-      navigate(`/?${queryParams}`);
+      setSearchParams(newSearchParams);
     }
   };
 
@@ -68,38 +71,39 @@ const MainPage: React.FC<Props> = ({ PersonCard }) => {
   }
 
   return (
-    <div className="main-page">
-      <div className="top-section">
-        <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
-        <button
-          onClick={() => {
-            setTestError(true);
-          }}
-        >
-          Throw Error
-        </button>
-        <ThemeSelector />
-      </div>
-      <div
-        className="bottom-section"
-        onClick={handleClickSection}
-        data-testid="bottom-section"
-      >
-        <div className="bottom-section__list">
-          <div className="bottom-section__list-content">
-            <CardList people={data?.results ?? []} progress={isFetching} />
-          </div>
-          <div className="bottom-section__list-pagination">
-            <Pagination
-              page={page ?? 1}
-              count={data?.count ?? 1}
-              progress={isFetching}
-              setPage={handleSetPage}
-            />
-          </div>
+    <div className={`wrapper ${theme}-theme`} data-testid="app-wrapper">
+      <div className="main-page">
+        <div className="top-section">
+          <Search searchTerm={searchTerm ?? ''} onSearch={handleSearch} />
+          <button
+            onClick={() => {
+              setTestError(true);
+            }}
+          >
+            Throw Error
+          </button>
+          <ThemeSelector />
         </div>
+        <div className="bottom-section" onClick={handleClickSection}>
+          <div className="bottom-section__list">
+            <div className="bottom-section__list-content">
+              <CardList
+                people={data?.results ?? []}
+                progress={navigation.state === 'loading'}
+              />
+            </div>
+            <div className="bottom-section__list-pagination">
+              <Pagination
+                page={page ?? 1}
+                count={data?.count ?? 1}
+                progress={navigation.state === 'loading'}
+                setPage={handleSetPage}
+              />
+            </div>
+          </div>
 
-        {PersonCard && <PersonCard />}
+          {PersonCard && cardData && <PersonCard cardData={cardData} />}
+        </div>
       </div>
     </div>
   );
