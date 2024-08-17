@@ -4,6 +4,8 @@ import Root from './routes/root.tsx';
 
 import ErrorPage from './pages/ErrorPage/ErrorPage.tsx';
 import HomePage from './pages/HomePage/HomePage.tsx';
+import FormPage from './pages/FormPage/FormPage.tsx';
+import UncontrolledForm from './features/UncontrolledForm/UncontrolledForm.tsx';
 
 const router = createBrowserRouter([
   {
@@ -14,6 +16,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: 'uncontrolled-form',
+        element: <FormPage Form={UncontrolledForm} />,
       },
     ],
   },
