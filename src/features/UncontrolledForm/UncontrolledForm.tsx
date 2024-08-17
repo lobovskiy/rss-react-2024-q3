@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import classNames from 'classnames';
 
 import type { FormData } from '../../schemas/formSchema.ts';
 import { formSchema } from '../../schemas/formSchema.ts';
@@ -9,7 +10,6 @@ import Button from '../../components/Button/Button.tsx';
 import { validateData } from '../../utils.ts';
 
 import './UncontrolledForm.css';
-import classNames from 'classnames';
 
 const countryList: string[] = [
   'United States',
@@ -136,7 +136,7 @@ const UncontrolledForm = () => {
       />
 
       <div className="select">
-        <label htmlFor="gender">Gender:</label>
+        <label htmlFor="gender">Gender</label>
         <select
           className={classNames('select__input', {
             select__input_error: !!errors.gender,
@@ -156,7 +156,7 @@ const UncontrolledForm = () => {
       </div>
 
       <div className="checkbox">
-        <label htmlFor="terms">Terms and Conditions:</label>
+        <label htmlFor="terms">Terms and Conditions</label>
         <div
           className={classNames('checkbox__input', {
             checkbox__input_error: !!errors.terms,
@@ -187,7 +187,7 @@ const UncontrolledForm = () => {
       />
 
       <div className="datalist">
-        <label htmlFor="country">Country:</label>
+        <label htmlFor="country">Country</label>
         <input
           className={classNames('datalist__input', {
             datalist__input_error: !!errors.country,
