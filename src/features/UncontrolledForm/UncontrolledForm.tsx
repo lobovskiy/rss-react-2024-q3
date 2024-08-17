@@ -1,8 +1,12 @@
 import { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 
 import type { FormData } from '../../schemas/formSchema.ts';
 import { formSchema } from '../../schemas/formSchema.ts';
+
+import { useAppDispatch, useAppSelector } from '../../redux/hooks.ts';
+import { addTile } from '../../redux/tiles/slice.ts';
 
 import UncontrolledInput from '../../components/UncontrolledInput/UncontrolledInput.tsx';
 import Button from '../../components/Button/Button.tsx';
@@ -11,20 +15,11 @@ import { validateData } from '../../utils.ts';
 
 import './UncontrolledForm.css';
 
-const countryList: string[] = [
-  'United States',
-  'Canada',
-  'United Kingdom',
-  'Australia',
-  'Germany',
-  'France',
-  'India',
-  'China',
-  'Brazil',
-  'South Africa',
-];
-
 const UncontrolledForm = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const countryList = useAppSelector((state) => state.countries.list);
+
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>(
     {}
   );
@@ -72,11 +67,19 @@ const UncontrolledForm = () => {
     const validationResult = validateData<FormData>(formData, formSchema);
 
     if (validationResult.valid) {
+      if (formData.picture) {
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          dispatch(addTile({ ...formData, picture: reader.result as string }));
+          navigate('/');
+        };
+
+        reader.readAsDataURL(formData.picture as Blob);
+      }
+
       setErrors({});
       setIsSubmitting(true);
-
-      alert('Form submitted successfully!');
-      setIsSubmitting(false);
     } else {
       setErrors(validationResult.errors);
     }
