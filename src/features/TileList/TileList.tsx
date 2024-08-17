@@ -2,6 +2,8 @@ import { useAppSelector } from '../../redux/hooks.ts';
 
 import Tile from '../../components/Tile/Tile.tsx';
 
+import './TileList.css';
+
 const TileList = () => {
   const tiles = useAppSelector((state) => state.tiles.list);
 
@@ -9,7 +11,13 @@ const TileList = () => {
     return <div className="tile-list">There are no tiles yet!</div>;
   }
 
-  return tiles.map((tile, i) => <Tile key={i} data={tile} />);
+  return (
+    <div className="tile-list">
+      {tiles.map((tile, i) => (
+        <Tile key={i} data={tile} />
+      ))}
+    </div>
+  );
 };
 
 export default TileList;

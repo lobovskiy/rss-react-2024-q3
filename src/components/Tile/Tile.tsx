@@ -15,7 +15,7 @@ const Tile: React.FC<Props> = ({ data }) => {
           background: `url(${data.picture as string})`,
           backgroundRepeat: 'no-repeat',
           backgroundSize: 'cover',
-          filter: 'opacity(50%)',
+          filter: 'opacity(25%)',
         }}
       />
       <div className="tile__detail">
