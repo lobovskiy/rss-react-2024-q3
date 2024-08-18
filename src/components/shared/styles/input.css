@@ -1,0 +1,26 @@
+.input {
+  position: relative;
+  text-align: left;
+}
+
+.input__input {
+  margin: 0.5em 0 1.5em;
+}
+
+.input__input_error {
+  border-color: red;
+}
+
+.input__hint {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
