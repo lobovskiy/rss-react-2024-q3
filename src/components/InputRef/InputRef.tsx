@@ -10,10 +10,11 @@ interface Props {
   label: string;
   accept?: React.InputHTMLAttributes<HTMLInputElement>['accept'];
   errorMessage?: string;
+  onInput: (event: React.FormEvent<HTMLInputElement>) => void;
 }
 
 const InputRef = forwardRef<HTMLInputElement, Props>(
-  ({ className, id, label, type, accept, errorMessage }, ref) => {
+  ({ className, id, label, type, accept, errorMessage, onInput }, ref) => {
     return (
       <div className={classNames('input', className)}>
         <label htmlFor={id}>{label}</label>
@@ -25,6 +26,7 @@ const InputRef = forwardRef<HTMLInputElement, Props>(
           id={id}
           accept={accept}
           ref={ref}
+          onInput={onInput}
         />
         {errorMessage && <span className="input__hint">{errorMessage}</span>}
       </div>

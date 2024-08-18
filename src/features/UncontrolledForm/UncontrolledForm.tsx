@@ -35,6 +35,18 @@ const UncontrolledForm = () => {
   const pictureRef = useRef<HTMLInputElement | null>(null);
   const countryRef = useRef<HTMLInputElement | null>(null);
 
+  const clearError = (error: keyof typeof errors) => {
+    if (!Object.keys(errors).includes(error)) {
+      return;
+    }
+
+    const restErrors = Object.fromEntries(
+      Object.entries(errors).filter(([errorKey]) => errorKey !== error)
+    );
+
+    setErrors(restErrors);
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     setIsSubmitting(true);
@@ -89,6 +101,9 @@ const UncontrolledForm = () => {
         label="Name"
         ref={nameRef}
         errorMessage={errors.name}
+        onInput={() => {
+          clearError('name');
+        }}
       />
       <InputRef
         type="number"
@@ -96,6 +111,9 @@ const UncontrolledForm = () => {
         label="Age"
         ref={ageRef}
         errorMessage={errors.age}
+        onInput={() => {
+          clearError('age');
+        }}
       />
       <InputRef
         type="email"
@@ -103,6 +121,9 @@ const UncontrolledForm = () => {
         label="Email"
         ref={emailRef}
         errorMessage={errors.email}
+        onInput={() => {
+          clearError('email');
+        }}
       />
       <InputRef
         type="password"
@@ -110,6 +131,9 @@ const UncontrolledForm = () => {
         label="Password"
         ref={passwordRef}
         errorMessage={errors.password}
+        onInput={() => {
+          clearError('password');
+        }}
       />
       <InputRef
         type="password"
@@ -117,6 +141,9 @@ const UncontrolledForm = () => {
         label="Confirm password"
         ref={confirmPasswordRef}
         errorMessage={errors.confirmPassword}
+        onInput={() => {
+          clearError('confirmPassword');
+        }}
       />
 
       <div className="select">
@@ -127,6 +154,9 @@ const UncontrolledForm = () => {
           })}
           id="gender"
           ref={genderRef}
+          onChange={() => {
+            clearError('gender');
+          }}
         >
           <option value="">Select Gender</option>
           <option value="male">Male</option>
@@ -139,7 +169,14 @@ const UncontrolledForm = () => {
       <div className="checkbox">
         <div className="checkbox__title">Terms and Conditions</div>
         <div className="checkbox__input">
-          <input type="checkbox" id="terms" ref={termsRef} />
+          <input
+            type="checkbox"
+            id="terms"
+            ref={termsRef}
+            onInput={() => {
+              clearError('terms');
+            }}
+          />
           <label className="checkbox__label" htmlFor="terms">
             I accept T&C
           </label>
@@ -154,6 +191,9 @@ const UncontrolledForm = () => {
         accept=".jpeg, .png"
         ref={pictureRef}
         errorMessage={errors.picture}
+        onInput={() => {
+          clearError('picture');
+        }}
       />
 
       <div className="datalist">
@@ -165,6 +205,9 @@ const UncontrolledForm = () => {
           id="country"
           list="countries"
           ref={countryRef}
+          onInput={() => {
+            clearError('country');
+          }}
         />
         <datalist id="countries">
           {countryList.map((country) => (
@@ -176,7 +219,10 @@ const UncontrolledForm = () => {
         )}
       </div>
 
-      <Button type="submit" disabled={isSubmitting} />
+      <Button
+        type="submit"
+        disabled={isSubmitting || !!Object.keys(errors).length}
+      />
     </form>
   );
 };
