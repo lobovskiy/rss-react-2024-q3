@@ -1,12 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import Root from './routes/root.tsx';
+import Root from './routes/root';
 
-import ErrorPage from './pages/ErrorPage/ErrorPage.tsx';
-import HomePage from './pages/HomePage/HomePage.tsx';
-import FormPage from './pages/FormPage/FormPage.tsx';
-import UncontrolledForm from './features/UncontrolledForm/UncontrolledForm.tsx';
-import HookForm from './features/HookForm/HookForm.tsx';
+import ErrorPage from './pages/ErrorPage/ErrorPage';
+import HomePage from './pages/HomePage/HomePage';
+import FormPage from './pages/FormPage/FormPage';
+import UncontrolledForm from './features/UncontrolledForm/UncontrolledForm';
+import HookForm from './features/HookForm/HookForm';
 
 const router = createBrowserRouter([
   {

@@ -2,16 +2,16 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 
-import type { FormData } from '../../schemas/formSchema.ts';
-import { formSchema } from '../../schemas/formSchema.ts';
+import type { FormData } from '../../schemas/formSchema';
+import { formSchema } from '../../schemas/formSchema';
 
-import { useAppDispatch, useAppSelector } from '../../redux/hooks.ts';
-import { addTile } from '../../redux/tiles/slice.ts';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { addTile } from '../../redux/tiles/slice';
 
-import UncontrolledInput from '../../components/UncontrolledInput/UncontrolledInput.tsx';
-import Button from '../../components/Button/Button.tsx';
+import InputRef from '../../components/InputRef/InputRef';
+import Button from '../../components/Button/Button';
 
-import { validateData } from '../../utils.ts';
+import { validateData } from '../../utils';
 
 import '../shared/styles/form.css';
 
@@ -94,7 +94,7 @@ const UncontrolledForm = () => {
 
   return (
     <form className="form" onSubmit={handleSubmit}>
-      <UncontrolledInput
+      <InputRef
         type="text"
         id="name"
         label="Name"
@@ -104,7 +104,7 @@ const UncontrolledForm = () => {
           clearError('name');
         }}
       />
-      <UncontrolledInput
+      <InputRef
         type="number"
         id="age"
         label="Age"
@@ -114,7 +114,7 @@ const UncontrolledForm = () => {
           clearError('age');
         }}
       />
-      <UncontrolledInput
+      <InputRef
         type="email"
         id="email"
         label="Email"
@@ -124,7 +124,7 @@ const UncontrolledForm = () => {
           clearError('email');
         }}
       />
-      <UncontrolledInput
+      <InputRef
         type="password"
         id="password"
         label="Password"
@@ -134,7 +134,7 @@ const UncontrolledForm = () => {
           clearError('password');
         }}
       />
-      <UncontrolledInput
+      <InputRef
         type="password"
         id="confirmPassword"
         label="Confirm password"
@@ -183,10 +183,11 @@ const UncontrolledForm = () => {
         {errors.terms && <span className="checkbox__hint">{errors.terms}</span>}
       </div>
 
-      <UncontrolledInput
+      <InputRef
         type="file"
         id="picture"
         label="Picture"
+        accept=".jpeg, .png"
         ref={pictureRef}
         errorMessage={errors.picture}
         onInput={() => {

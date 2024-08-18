@@ -1,9 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 
-import type { FormData } from '../../schemas/formSchema.ts';
-
-type StoredFormData = Omit<FormData, 'picture'> & { picture: string };
+import { StoredFormData } from '../../types';
 
 export interface TilesState {
   addedInLast5SecTile: StoredFormData | null;

@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import classNames from 'classnames';
 
-import type { FormData } from '../../schemas/formSchema.ts';
-import { formSchema } from '../../schemas/formSchema.ts';
+import type { FormData } from '../../schemas/formSchema';
+import { formSchema } from '../../schemas/formSchema';
 
-import { useAppDispatch, useAppSelector } from '../../redux/hooks.ts';
-import { addTile } from '../../redux/tiles/slice.ts';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { addTile } from '../../redux/tiles/slice';
 
-import Button from '../../components/Button/Button.tsx';
-import RegistrableInput from '../../components/RegistrableInput/RegistrableInput.tsx';
+import Button from '../../components/Button/Button';
+import RegistrableInput from '../../components/RegistrableInput/RegistrableInput';
 
-import useYupValidationResolver from './useYupValidationResolver.ts';
+import useYupValidationResolver from './hooks/useYupValidationResolver';
 
 import '../shared/styles/form.css';
 
@@ -54,9 +54,6 @@ const HookForm: React.FC = () => {
       reader.readAsDataURL(data.picture[0]);
     }
 
-    setIsSubmitting(true);
-
-    alert('Form submitted successfully!');
     setIsSubmitting(false);
   };
 
@@ -134,6 +131,7 @@ const HookForm: React.FC = () => {
         type="file"
         id="picture"
         label="Picture"
+        accept=".jpeg, .png"
         registerReturn={register('picture')}
         errorMessage={errors.picture?.message}
       />

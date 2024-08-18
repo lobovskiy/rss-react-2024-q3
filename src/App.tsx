@@ -1,9 +1,9 @@
 import { RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
-import { store } from './redux/store.ts';
+import { store } from './redux/store';
 
-import router from './router.tsx';
+import router from './router';
 
 const App = () => {
   return (

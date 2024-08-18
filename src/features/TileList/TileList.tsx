@@ -1,6 +1,6 @@
 import { useAppSelector } from '../../redux/hooks.ts';
 
-import Tile from '../../components/Tile/Tile.tsx';
+import Tile from '../../components/Tile/Tile';
 
 import './TileList.css';
 

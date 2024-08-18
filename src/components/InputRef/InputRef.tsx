@@ -5,15 +5,16 @@ import '../shared/styles/input.css';
 
 interface Props {
   className?: string;
+  type?: React.HTMLInputTypeAttribute;
   id: string;
   label: string;
-  type?: React.HTMLInputTypeAttribute;
+  accept?: React.InputHTMLAttributes<HTMLInputElement>['accept'];
   errorMessage?: string;
   onInput: (event: React.FormEvent<HTMLInputElement>) => void;
 }
 
-const UncontrolledInput = forwardRef<HTMLInputElement, Props>(
-  ({ className, id, label, type, errorMessage, onInput }, ref) => {
+const InputRef = forwardRef<HTMLInputElement, Props>(
+  ({ className, id, label, type, accept, errorMessage, onInput }, ref) => {
     return (
       <div className={classNames('input', className)}>
         <label htmlFor={id}>{label}</label>
@@ -23,6 +24,7 @@ const UncontrolledInput = forwardRef<HTMLInputElement, Props>(
           })}
           type={type}
           id={id}
+          accept={accept}
           ref={ref}
           onInput={onInput}
         />
@@ -31,6 +33,6 @@ const UncontrolledInput = forwardRef<HTMLInputElement, Props>(
     );
   }
 );
-UncontrolledInput.displayName = 'UncontrolledInput';
+InputRef.displayName = 'InputRef';
 
-export default UncontrolledInput;
+export default InputRef;

@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { COUNTRY_LIST } from '../constants.ts';
+import { COUNTRY_LIST } from '../constants';
 
 export const formSchema = yup.object().shape({
   name: yup
@@ -32,19 +32,28 @@ export const formSchema = yup.object().shape({
     .oneOf([yup.ref('password')], 'Passwords must match')
     .required('Confirm password is required'),
   gender: yup.string().required('Gender is required'),
-  terms: yup.bool().oneOf([true], 'You must accept the terms and conditions'),
+  terms: yup
+    .bool()
+    .oneOf([true], 'You need to accept the terms and conditions'),
   picture: yup
     .mixed<FileList>()
-    .test(
-      'fileSize',
-      'File size too large',
-      (value) => !value || value[0]?.size <= 1024 * 1024
-    )
-    .test(
-      'fileType',
-      'Unsupported file format',
-      (value) => !value || ['image/jpeg', 'image/png'].includes(value[0]?.type)
-    )
+    .test('fileSize', 'File size is too large', (value) => {
+      if (!value || !value.length) {
+        return true;
+      }
+
+      return value[0]?.size <= 1024 * 1024;
+    })
+    .test('fileType', 'Unsupported file format', (value) => {
+      if (!value || !value.length) {
+        return true;
+      }
+
+      return ['image/jpeg', 'image/png'].includes(value[0]?.type);
+    })
+    .test('fileType', 'Picture is required', (value) => {
+      return !(!value || !value.length);
+    })
     .required('Picture is required'),
   country: yup
     .string()

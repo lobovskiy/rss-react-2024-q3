@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { COUNTRY_LIST } from '../../constants.ts';
+import { COUNTRY_LIST } from '../../constants';
 
 export interface CountriesState {
   list: string[];

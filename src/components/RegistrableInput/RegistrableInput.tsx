@@ -1,11 +1,12 @@
-import classNames from 'classnames';
 import { UseFormRegisterReturn } from 'react-hook-form';
+import classNames from 'classnames';
 
 interface Props {
   className?: string;
   type?: React.HTMLInputTypeAttribute;
   id: string;
   label: string;
+  accept?: React.InputHTMLAttributes<HTMLInputElement>['accept'];
   registerReturn: UseFormRegisterReturn;
   errorMessage?: string;
 }
@@ -15,6 +16,7 @@ const RegistrableInput: React.FC<Props> = ({
   type,
   id,
   label,
+  accept,
   registerReturn,
   errorMessage,
 }) => {
@@ -27,9 +29,10 @@ const RegistrableInput: React.FC<Props> = ({
         })}
         type={type}
         id={id}
+        accept={accept}
         {...registerReturn}
       />
-      {errorMessage && <span className="input__hint">{errorMessage}</span>}
+      {!!errorMessage && <span className="input__hint">{errorMessage}</span>}
     </div>
   );
 };
