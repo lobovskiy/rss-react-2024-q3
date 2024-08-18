@@ -1,17 +1,17 @@
-.uncontrolled-input {
+.input {
   position: relative;
   text-align: left;
 }
 
-.uncontrolled-input__input {
+.input__input {
   margin: 0.5em 0 1.5em;
 }
 
-.uncontrolled-input__input_error {
+.input__input_error {
   border-color: red;
 }
 
-.uncontrolled-input__hint {
+.input__hint {
   position: absolute;
   left: 0;
   bottom: 0;

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 
@@ -13,7 +13,7 @@ import Button from '../../components/Button/Button.tsx';
 
 import { validateData } from '../../utils.ts';
 
-import './UncontrolledForm.css';
+import '../shared/styles/form.css';
 
 const UncontrolledForm = () => {
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ const UncontrolledForm = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
     const formData: FormData = {
       name: nameRef.current?.value || '',
@@ -58,9 +59,7 @@ const UncontrolledForm = () => {
       confirmPassword: confirmPasswordRef.current?.value || '',
       gender: genderRef.current?.value || '',
       terms: termsRef.current?.checked || false,
-      picture: pictureRef.current?.files
-        ? pictureRef.current.files[0]
-        : new File([], 'Empty file'),
+      picture: pictureRef.current?.files || new FileList(),
       country: countryRef.current?.value || '',
     };
 
@@ -71,17 +70,25 @@ const UncontrolledForm = () => {
         const reader = new FileReader();
 
         reader.onloadend = () => {
+          setIsSubmitting(false);
           dispatch(addTile({ ...formData, picture: reader.result as string }));
           navigate('/');
         };
+        reader.onerror = () => {
+          setIsSubmitting(false);
+        };
+        reader.onabort = () => {
+          setIsSubmitting(false);
+        };
 
-        reader.readAsDataURL(formData.picture as Blob);
+        reader.readAsDataURL(formData.picture[0]);
       }
 
       setErrors({});
-      setIsSubmitting(true);
+      setIsSubmitting(false);
     } else {
       setErrors(validationResult.errors);
+      setIsSubmitting(false);
     }
   };
 
@@ -159,12 +166,8 @@ const UncontrolledForm = () => {
       </div>
 
       <div className="checkbox">
-        <label htmlFor="terms">Terms and Conditions</label>
-        <div
-          className={classNames('checkbox__input', {
-            checkbox__input_error: !!errors.terms,
-          })}
-        >
+        <div className="checkbox__title">Terms and Conditions</div>
+        <div className="checkbox__input">
           <input
             type="checkbox"
             id="terms"
@@ -173,7 +176,9 @@ const UncontrolledForm = () => {
               clearError('terms');
             }}
           />
-          <div>I accept T&C</div>
+          <label className="checkbox__label" htmlFor="terms">
+            I accept T&C
+          </label>
         </div>
         {errors.terms && <span className="checkbox__hint">{errors.terms}</span>}
       </div>

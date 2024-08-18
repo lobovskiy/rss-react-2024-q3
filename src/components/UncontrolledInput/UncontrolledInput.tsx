@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import classNames from 'classnames';
 
-import './UncontrolledInput.css';
+import '../shared/styles/input.css';
 
 interface Props {
   className?: string;
@@ -15,20 +15,18 @@ interface Props {
 const UncontrolledInput = forwardRef<HTMLInputElement, Props>(
   ({ className, id, label, type, errorMessage, onInput }, ref) => {
     return (
-      <div className={classNames('uncontrolled-input', className)}>
+      <div className={classNames('input', className)}>
         <label htmlFor={id}>{label}</label>
         <input
-          className={classNames('uncontrolled-input__input', {
-            'uncontrolled-input__input_error': !!errorMessage,
+          className={classNames('input__input', {
+            input__input_error: !!errorMessage,
           })}
           type={type}
           id={id}
           ref={ref}
           onInput={onInput}
         />
-        {errorMessage && (
-          <span className="uncontrolled-input__hint">{errorMessage}</span>
-        )}
+        {errorMessage && <span className="input__hint">{errorMessage}</span>}
       </div>
     );
   }

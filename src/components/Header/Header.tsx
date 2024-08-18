@@ -14,7 +14,7 @@ const Header = () => {
             <Link to="/uncontrolled-form">Uncontrolled Form</Link>
           </li>
           <li className="nav-item">
-            <Link to="/react-hook-form">React Hook Form</Link>
+            <Link to="/hook-form">React Hook Form</Link>
           </li>
         </ul>
       </nav>

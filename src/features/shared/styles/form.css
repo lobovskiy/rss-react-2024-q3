@@ -50,10 +50,18 @@ input[type='checkbox'] + label {
   text-align: left;
 }
 
+.checkbox__title {
+  font-weight: bold;
+}
+
 .checkbox__input {
   width: 100%;
   display: inline-flex;
   gap: 0.5em;
+}
+
+.checkbox__label {
+  font-weight: initial;
 }
 
 .select__input,
@@ -64,15 +72,6 @@ input[type='checkbox'] + label {
 
 .select__input_error,
 .datalist__input_error {
-  border-color: red;
-}
-
-.checkbox__input {
-  border: 1px solid transparent;
-  border-radius: 5px;
-}
-
-.checkbox__input_error {
   border-color: red;
 }
 

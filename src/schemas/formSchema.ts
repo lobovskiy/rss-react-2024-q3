@@ -7,6 +7,7 @@ export const formSchema = yup.object().shape({
     .required('Name is required'),
   age: yup
     .number()
+    .transform((value) => (Number.isNaN(value) ? null : value))
     .positive('Age must be a positive number')
     .integer('Age must be an integer')
     .required('Age is required'),
@@ -31,21 +32,19 @@ export const formSchema = yup.object().shape({
   gender: yup.string().required('Gender is required'),
   terms: yup.bool().oneOf([true], 'You must accept the terms and conditions'),
   picture: yup
-    .mixed()
+    .mixed<FileList>()
     .test(
       'fileSize',
       'File size too large',
-      (value) => !value || (value as File).size <= 1024 * 1024
+      (value) => !value || value[0]?.size <= 1024 * 1024
     )
     .test(
       'fileType',
       'Unsupported file format',
-      (value) =>
-        !value || ['image/jpeg', 'image/png'].includes((value as File).type)
+      (value) => !value || ['image/jpeg', 'image/png'].includes(value[0]?.type)
     )
     .required('Picture is required'),
   country: yup.string().required('Country is required'),
 });
 
-// export default formSchema;
 export type FormData = yup.InferType<typeof formSchema>;
