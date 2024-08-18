@@ -8,6 +8,10 @@
   overflow: hidden;
 }
 
+.tile_new {
+  animation: flickerBorder 0.5s ease-in-out infinite;
+}
+
 .tile__background {
   position: absolute;
   inset: 0;
@@ -25,4 +29,22 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+@keyframes flickerBorder {
+  0% {
+    border-color: rgba(140, 0, 255, 0.3);
+  }
+  25% {
+    border-color: rgb(91, 177, 193);
+  }
+  50% {
+    border-color: rgba(140, 0, 255, 0.5);
+  }
+  75% {
+    border-color: rgba(91, 177, 193, 1);
+  }
+  100% {
+    border-color: rgba(140, 0, 255, 0.3);
+  }
 }

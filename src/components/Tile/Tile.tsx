@@ -1,16 +1,21 @@
-import { StoredFormData } from '../../types.ts';
+import classNames from 'classnames';
+
+import { StoredFormData } from '../../types';
 
 import './Tile.css';
 
 interface Props {
   data: StoredFormData;
+  lastAddedTileId?: string;
 }
 
-const Tile: React.FC<Props> = ({ data }) => {
-  const { picture, name, age, gender, email, password, terms, country } = data;
+const Tile: React.FC<Props> = ({ data, lastAddedTileId }) => {
+  const { id, picture, name, age, gender, email, password, terms, country } =
+    data;
+  const className = classNames('tile', { tile_new: lastAddedTileId === id });
 
   return (
-    <div className="tile">
+    <div className={className}>
       <div
         className="tile__background"
         style={{

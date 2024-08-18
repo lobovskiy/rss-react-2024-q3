@@ -6,7 +6,7 @@ import type { FormData } from '../../schemas/formSchema';
 import { formSchema } from '../../schemas/formSchema';
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { addTile } from '../../redux/tiles/slice';
+import { addTile, clearLastAddedTile } from '../../redux/tiles/slice';
 
 import InputRef from '../../components/InputRef/InputRef';
 import Button from '../../components/Button/Button';
@@ -72,6 +72,7 @@ const UncontrolledForm = () => {
         reader.onloadend = () => {
           setIsSubmitting(false);
           dispatch(addTile({ ...formData, picture: reader.result as string }));
+          setTimeout(() => dispatch(clearLastAddedTile()), 5000);
           navigate('/');
         };
         reader.onerror = () => {

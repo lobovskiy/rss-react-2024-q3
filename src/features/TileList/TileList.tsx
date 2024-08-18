@@ -6,6 +6,7 @@ import './TileList.css';
 
 const TileList = () => {
   const tiles = useAppSelector((state) => state.tiles.list);
+  const lastAddedTile = useAppSelector((state) => state.tiles.lastAddedTile);
 
   if (!tiles.length) {
     return <div className="tile-list">There are no tiles yet!</div>;
@@ -14,7 +15,7 @@ const TileList = () => {
   return (
     <div className="tile-list">
       {tiles.map((tile, i) => (
-        <Tile key={i} data={tile} />
+        <Tile key={i} data={tile} lastAddedTileId={lastAddedTile?.id} />
       ))}
     </div>
   );
