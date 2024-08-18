@@ -1,5 +1,7 @@
 import * as yup from 'yup';
 
+import { COUNTRY_LIST } from '../constants.ts';
+
 export const formSchema = yup.object().shape({
   name: yup
     .string()
@@ -44,7 +46,10 @@ export const formSchema = yup.object().shape({
       (value) => !value || ['image/jpeg', 'image/png'].includes(value[0]?.type)
     )
     .required('Picture is required'),
-  country: yup.string().required('Country is required'),
+  country: yup
+    .string()
+    .oneOf(COUNTRY_LIST, 'Please select a country from the list')
+    .required('Country is required'),
 });
 
 export type FormData = yup.InferType<typeof formSchema>;

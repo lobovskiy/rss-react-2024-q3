@@ -1,22 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+import { COUNTRY_LIST } from '../../constants.ts';
+
 export interface CountriesState {
   list: string[];
 }
 
 const initialState: CountriesState = {
-  list: [
-    'United States',
-    'Canada',
-    'United Kingdom',
-    'Australia',
-    'Germany',
-    'France',
-    'India',
-    'China',
-    'Brazil',
-    'South Africa',
-  ],
+  list: COUNTRY_LIST,
 };
 
 const countriesSlice = createSlice({
